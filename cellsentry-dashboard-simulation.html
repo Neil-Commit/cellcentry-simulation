@@ -201,6 +201,58 @@
     border:1px solid #777777;
   }
   .hint{font-size:11px;color:#555555;margin-top:6px;}
+
+  /* ===== simulated node map ===== */
+  .sitemap{
+    position:relative;
+    width:100%;
+    height:380px;
+    background:
+      linear-gradient(#e2e8f0 1px, transparent 1px) 0 0/100% 38px,
+      linear-gradient(90deg, #e2e8f0 1px, transparent 1px) 0 0/38px 100%,
+      #eef2f7;
+    border:1px solid #999999;
+    overflow:hidden;
+  }
+  .sitemap-caption{
+    position:absolute;top:8px;left:10px;
+    font-size:11px;font-weight:bold;color:#555555;
+    background:rgba(255,255,255,0.85);padding:2px 6px;border:1px solid #cccccc;
+  }
+  .sitemap-compass{
+    position:absolute;top:8px;right:10px;
+    font-size:11px;font-weight:bold;color:#555555;
+    background:rgba(255,255,255,0.85);padding:2px 6px;border:1px solid #cccccc;
+  }
+  .map-node{
+    position:absolute;
+    transform:translate(-50%,-50%);
+    min-width:108px;
+    border:2px solid #000000;
+    padding:5px 7px;
+    text-align:center;
+    cursor:pointer;
+    font-size:10px;
+    line-height:1.3;
+  }
+  .map-node:hover{outline:2px solid #0a2a6b;}
+  .map-node .map-node-name{font-weight:bold;font-size:11px;}
+  .map-node .map-node-state{font-size:9px;letter-spacing:0.3px;}
+  .map-legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;font-size:11px;}
+  .map-legend .swatch{
+    display:inline-block;width:11px;height:11px;border:1px solid #777777;
+    margin-right:4px;vertical-align:middle;
+  }
+  .real-map-wrap{
+    border:1px solid #999999;
+    margin-top:6px;
+  }
+  .real-map-frame{
+    width:100%;
+    height:320px;
+    border:0;
+    display:block;
+  }
   select, .sitesel{font-size:12px;padding:4px;border:1px solid #777777;}
   .logline{font-family:monospace;font-size:11px;padding:3px 0;border-bottom:1px solid #eee;}
   .print-report{padding:16px;background:#ffffff;border:1px solid #cccccc;}
@@ -291,6 +343,24 @@
   </div>
 
   <div class="panel">
+    <h3>SIMULATED BARANGAY NODE MAP &mdash; NORZAGARAY, BULACAN</h3>
+    <div class="inner">
+      <div class="hint">Node layout below is derived from the actual relative positions of these barangays (via Google Places data) so the arrangement roughly reflects real geography &mdash; it is still a schematic box diagram, not a precise geodetic plot. Box color reflects each node's current simulated connectivity state. Click a node to jump to its row on the LGU Site Overview tab.</div>
+      <div class="sitemap" id="siteMap">
+        <span class="sitemap-caption">NORZAGARAY, BULACAN (SCHEMATIC, POSITIONS FROM REAL BARANGAY DATA)</span>
+        <span class="sitemap-compass">N &uarr;</span>
+      </div>
+      <div class="map-legend" id="mapLegend"></div>
+      <div class="hint" style="margin-top:10px;">
+        Reference (real, live) map of the area &mdash; not part of the simulation, shown for geographic context only:
+      </div>
+      <div class="real-map-wrap">
+        <iframe id="realMapFrame" class="real-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
     <h3>PUBLIC ADVISORY BOARD (SIMULATED POSTS)</h3>
     <div class="inner">
       <table class="oldtable">
@@ -328,6 +398,16 @@
     <button class="gbtn" onclick="exitDevOptions()">&larr; RETURN TO PUBLIC PORTAL</button>
   </div>
   <div style="padding:16px;max-width:1180px;margin:0 auto;">
+  <div class="panel" id="typhoon-panel" style="border-color:#8a0000;">
+    <h3 style="color:#8a0000;">LGU-WIDE SIMULATED WEATHER EVENT &mdash; ALL 6 SITES</h3>
+    <div class="inner">
+      <div class="hint" style="color:#dddddd;">Triggers instantly on click and applies to every simulated site LGU-wide at once &mdash; this is <b>not</b> a timed/scripted sequence. Sites closer to the simulated typhoon track take a harder hit (forced outages more likely); sites further out just see elevated congestion. Battery levels also dip to simulate a brief power interruption.</div>
+      <div class="btnrow">
+        <button class="gbtn danger" style="font-weight:bold;" onclick="simulateTyphoonAllSites()">⚠ SIMULATE TYPHOON PASSING OVER LGU (ALL SITES)</button>
+        <button class="gbtn ok" onclick="resetAllSites()">CLEAR TYPHOON / RESET ALL SITES</button>
+      </div>
+    </div>
+  </div>
   <div class="panel">
     <h3>SELECT SITE TO SIMULATE</h3>
     <div class="inner">
@@ -486,6 +566,60 @@ const SITE_NAMES = [
   {id:"s4", name:"Brgy. San Mateo Emergency Post", brgy:"San Mateo", type:"Emergency Post"},
   {id:"s5", name:"Brgy. Minuyan Health Station", brgy:"Minuyan", type:"Rural Health Unit"},
   {id:"s6", name:"Brgy. Partida Barangay Hall", brgy:"Partida", type:"Barangay Hall"},
+];
+
+/* Approximate, non-geodetic schematic positions (percent of map box) for each
+   simulated node — for illustration only, not surveyed coordinates. */
+/* Real-world reference coordinates (from Google Places data) for each simulated
+   node's barangay. Used only to derive the node map's relative layout and to
+   link out to an actual map — the node BOXES themselves are still a schematic,
+   not a geodetically precise plot. */
+const REAL_COORDS = {
+  s1: {lat:14.8669058, lng:121.0377563}, // Tigbe Barangay Hall
+  s2: {lat:14.8538359, lng:121.0838920}, // Bigte Barangay Hall
+  s3: {lat:14.9050366, lng:121.0423342}, // Norzagaray Municipal Hall (Poblacion)
+  s4: {lat:14.8735720, lng:121.1277954}, // San Mateo Barangay Hall
+  s5: {lat:14.8703524, lng:121.0793767}, // Barangay Minuyan Hall
+  s6: {lat:14.9003775, lng:121.0363768}, // Partida (barangay center)
+};
+
+/* Node map positions derived from the REAL_COORDS bounding box above, converted
+   to percentage coordinates with ~10% padding on each edge. Simple equirectangular
+   projection — fine at this scale, not a substitute for an actual GIS plot. */
+function buildNodeCoordsFromRealData(){
+  const lats = Object.values(REAL_COORDS).map(c=>c.lat);
+  const lngs = Object.values(REAL_COORDS).map(c=>c.lng);
+  const latMin = Math.min(...lats), latMax = Math.max(...lats);
+  const lngMin = Math.min(...lngs), lngMax = Math.max(...lngs);
+  const latRange = (latMax - latMin) || 1;
+  const lngRange = (lngMax - lngMin) || 1;
+  const pad = 10, span = 80;
+  const coords = {};
+  Object.keys(REAL_COORDS).forEach(id=>{
+    const c = REAL_COORDS[id];
+    coords[id] = {
+      x: pad + ((c.lng - lngMin) / lngRange) * span,
+      y: pad + ((latMax - c.lat) / latRange) * span // higher latitude = further north = smaller y
+    };
+  });
+  return coords;
+}
+const NODE_COORDS = buildNodeCoordsFromRealData();
+
+const MAP_CENTER = (()=>{
+  const vals = Object.values(REAL_COORDS);
+  const lat = vals.reduce((s,c)=>s+c.lat,0)/vals.length;
+  const lng = vals.reduce((s,c)=>s+c.lng,0)/vals.length;
+  return {lat, lng};
+})();
+
+const MAP_LEGEND = [
+  {cls:"st-PRIMARY_HEALTHY", label:"Primary healthy"},
+  {cls:"st-PRIMARY_DEGRADED", label:"Primary degraded"},
+  {cls:"st-BACKUP_ACTIVE", label:"Running on backup"},
+  {cls:"st-RECOVERY_PENDING", label:"Recovery pending"},
+  {cls:"st-BOTH_DEGRADED", label:"Both links degraded"},
+  {cls:"st-OFFLINE", label:"Offline"},
 ];
 
 function freshLink(){
@@ -655,6 +789,69 @@ function resetSite(){
   renderAll();
 }
 
+/* ---- LGU-wide typhoon event: instant, button-triggered, ALL sites at once ----
+   No setTimeout/setInterval sequencing here on purpose — the whole event
+   resolves the moment the button is clicked, unlike the scripted demo above. */
+function simulateTyphoonAllSites(){
+  const now = new Date().toLocaleString();
+  globalIncidents.unshift({
+    time: now,
+    site: "ALL SITES",
+    event: `[SIMULATED WEATHER EVENT] Typhoon track simulated passing directly over ${SIMULATED_LGU} — LGU-wide simulated tower congestion/outages triggered across all ${sites.length} monitored sites.`
+  });
+
+  sites.forEach(site=>{
+    // Randomized "distance from eye" per site so the LGU-wide hit isn't uniform.
+    const severity = Math.random();
+    let congA, congB, forceA = false, forceB = false;
+
+    if(severity > 0.7){
+      // Simulated direct hit: primary knocked fully out, backup badly strained.
+      forceA = true; congA = 100;
+      forceB = Math.random() > 0.5;
+      congB = forceB ? 100 : (55 + Math.floor(Math.random()*35));
+    } else if(severity > 0.35){
+      // Simulated near-track: heavy congestion on both links.
+      congA = 55 + Math.floor(Math.random()*40);
+      congB = 20 + Math.floor(Math.random()*40);
+    } else {
+      // Simulated outer-band: elevated but sub-critical congestion.
+      congA = 20 + Math.floor(Math.random()*30);
+      congB = 10 + Math.floor(Math.random()*20);
+    }
+
+    site.A.congestion = congA; site.A.forcedOutage = forceA;
+    site.B.congestion = congB; site.B.forcedOutage = forceB;
+    site.battery = Math.max(5, site.battery - (5 + Math.floor(Math.random()*15)));
+
+    pushLog(site, `[SIMULATED TYPHOON] Simulated high wind/rain impact at ${site.brgy} — Tower A congestion set to ${congA}%${forceA ? " (forced outage)" : ""}, Tower B congestion set to ${congB}%${forceB ? " (forced outage)" : ""}.`);
+
+    // Fast-forward the state machine's consecutive-check counters immediately
+    // (same evaluateSite() logic the normal tick loop uses) so failover/offline
+    // states resolve right now instead of waiting for real ticks.
+    for(let i=0; i<CONSEC_FAIL_THRESHOLD+1; i++){ evaluateSite(site); }
+  });
+
+  // Keep the on-screen sliders for whichever site is currently selected in sync.
+  document.getElementById("towerA-congestion").value = currentSite().A.congestion;
+  document.getElementById("towerB-congestion").value = currentSite().B.congestion;
+  renderAll();
+}
+
+function resetAllSites(){
+  sites = SITE_NAMES.map(freshSite);
+  currentSiteId = sites[0].id;
+  document.getElementById("siteSelect").value = currentSiteId;
+  document.getElementById("towerA-congestion").value = 0;
+  document.getElementById("towerB-congestion").value = 0;
+  globalIncidents.unshift({
+    time: new Date().toLocaleString(),
+    site: "ALL SITES",
+    event: "[SIMULATED] Typhoon event cleared — all sites manually reset to baseline (PRIMARY_HEALTHY)."
+  });
+  renderAll();
+}
+
 let demoRunning = false;
 function runScriptedDemo(){
   if(demoRunning) return;
@@ -686,6 +883,46 @@ function renderAll(){
   renderStatsRow();
   renderSiteLog();
   renderIncidentTable();
+  renderSiteMap();
+}
+
+function renderSiteMap(){
+  const map = document.getElementById("siteMap");
+  if(!map) return;
+  map.querySelectorAll(".map-node").forEach(n=>n.remove());
+  sites.forEach(site=>{
+    const coord = NODE_COORDS[site.id] || {x:50, y:50};
+    const node = document.createElement("div");
+    node.className = "map-node st-" + site.state;
+    node.style.left = coord.x + "%";
+    node.style.top = coord.y + "%";
+    const real = REAL_COORDS[site.id];
+    const coordLabel = real ? ` — approx. ${real.lat.toFixed(4)}, ${real.lng.toFixed(4)}` : "";
+    node.title = `${site.name} (${site.brgy})${coordLabel} — ${site.state.replace(/_/g," ")} — click to view on LGU Site Overview`;
+    node.innerHTML = `<div class="map-node-name">${site.brgy}</div><div class="map-node-state">${site.state.replace(/_/g," ")}</div>`;
+    node.addEventListener("click", ()=>goToSiteOnOverview(site.id));
+    map.appendChild(node);
+  });
+  renderMapLegend();
+}
+
+function renderMapLegend(){
+  const legend = document.getElementById("mapLegend");
+  if(!legend || legend.childElementCount) return; // static, build once
+  legend.innerHTML = MAP_LEGEND.map(item =>
+    `<span><span class="swatch ${item.cls}"></span>${item.label}</span>`
+  ).join("");
+}
+
+function goToSiteOnOverview(siteId){
+  currentSiteId = siteId;
+  const select = document.getElementById("siteSelect");
+  if(select) select.value = siteId;
+  document.querySelectorAll(".navtabs button").forEach(b=>b.classList.remove("active"));
+  const overviewBtn = document.querySelector('.navtabs button[data-page="overview"]');
+  if(overviewBtn) overviewBtn.classList.add("active");
+  showPage("overview");
+  renderAll();
 }
 
 function renderTowers(){
@@ -819,6 +1056,11 @@ document.getElementById("hitcounter").textContent = String(hits).padStart(6,"0")
 setInterval(()=>{ hits += Math.random()<0.3?1:0; document.getElementById("hitcounter").textContent = String(hits).padStart(6,"0"); }, 4000);
 
 document.getElementById("overviewLguName").textContent = SIMULATED_LGU;
+
+const realMapFrame = document.getElementById("realMapFrame");
+if(realMapFrame){
+  realMapFrame.src = `https://www.google.com/maps?q=${MAP_CENTER.lat},${MAP_CENTER.lng}&z=13&output=embed`;
+}
 
 renderAll();
 startClock();
