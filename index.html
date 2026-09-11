@@ -378,6 +378,230 @@
     .statbox{min-width:100%;}
     .sitemap{height:240px;}
   }
+  /* ==================================================
+   GUIDED DEMO — PUBLIC, JUDGE-FRIENDLY VIEW
+================================================== */
+
+.guided-demo-panel {
+  border: 2px solid #0a2a6b;
+}
+
+.guided-introduction {
+  margin: 0 0 16px;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.guided-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.guided-speed-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: auto;
+  color: #071d49;
+  font-size: 14px;
+}
+
+.guided-speed-select {
+  padding: 9px 10px;
+  border: 2px solid #0a2a6b;
+  background: #ffffff;
+  color: #000000;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+#guidedDemoStart {
+  padding: 12px 22px;
+  background: #ffbf00;
+  border: 3px solid #0a2a6b;
+  color: #000000;
+  font-size: 17px;
+  font-weight: bold;
+}
+
+#guidedDemoStart:hover {
+  background: #ffd45a;
+}
+
+.guided-controls button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.guided-status {
+  margin-bottom: 16px;
+  padding: 13px 15px;
+  border-left: 7px solid #0a2a6b;
+  background: #edf3ff;
+  color: #071d49;
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.guided-progress {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.guided-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  min-height: 115px;
+  padding: 15px;
+  border: 2px solid #aeb7c5;
+  background: #f4f5f7;
+  color: #303030;
+}
+
+.guided-step strong {
+  display: block;
+  margin: 3px 0 8px;
+  font-size: 16px;
+}
+
+.guided-step p {
+  margin: 0;
+  line-height: 1.35;
+}
+
+.guided-number {
+  display: inline-flex;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #68758a;
+  color: #ffffff;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* Current stage */
+.guided-step.active {
+  border: 3px solid #1256a0;
+  background: #e8f1ff;
+  box-shadow: inset 0 0 0 2px #ffffff;
+}
+
+.guided-step.active .guided-number {
+  background: #0a2a6b;
+}
+
+/* Completed stage */
+.guided-step.completed {
+  border-color: #237a3b;
+  background: #edf8f0;
+}
+
+.guided-step.completed .guided-number {
+  background: #237a3b;
+}
+
+/* Problem-detection stage */
+.guided-step.warning.active {
+  border-color: #9a6700;
+  background: #fff4ce;
+}
+
+.guided-step.warning.active .guided-number {
+  background: #9a6700;
+}
+
+/* Connection-down stage */
+.guided-step.danger.active {
+  border-color: #b42318;
+  background: #ffebe9;
+}
+
+.guided-step.danger.active .guided-number {
+  background: #b42318;
+}
+
+/* Recovery stage */
+.guided-step.recovery.active {
+  border-color: #1256a0;
+  background: #e8f1ff;
+}
+
+.guided-narration {
+  padding: 16px;
+  border: 2px solid #0a2a6b;
+  background: #f2f6ff;
+  font-size: 17px;
+  line-height: 1.5;
+}
+
+.guided-result {
+  margin-top: 16px;
+  padding: 18px;
+  border: 2px solid #237a3b;
+  background: #edf8f0;
+}
+
+.guided-result h4 {
+  margin: 0 0 12px;
+  color: #145b2a;
+  font-size: 18px;
+}
+
+.guided-result p {
+  margin: 6px 0;
+}
+
+.guided-result .gbtn {
+  margin-top: 12px;
+  margin-right: 8px;
+}
+
+/* Tablet and phone layout */
+@media (max-width: 900px) {
+  .guided-progress {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 600px) {
+  .guided-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .guided-step {
+    min-height: auto;
+  }
+
+  .guided-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .guided-controls button {
+    width: 100%;
+
+    
+  }
+  .guided-speed-label {
+  width: 100%;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.guided-speed-select {
+  width: 100%;
+}
+}
 </style>
 </head>
 <body>
@@ -414,6 +638,7 @@
 
 <div class="navtabs" id="navtabs">
   <button data-page="home" class="active">HOME</button>
+  <button data-page="guided">GUIDED DEMO</button>
   <button data-page="overview">LGU SITE OVERVIEW</button>
   <button data-page="incidents">INCIDENT LOG</button>
   <button data-page="report">DOWNLOADABLE REPORT</button>
@@ -472,7 +697,140 @@
 
   <div class="hint">SMS field-responder alert module: roadmap item, not part of the current MVP.</div>
 </div>
+<!-- ============ GUIDED DEMO ============ -->
+<div class="page" id="page-guided">
 
+  <div class="disclaimer">
+    <b>SIMULATION — ILLUSTRATIVE DATA, NOT A LIVE DEVICE.</b>
+    This guided demonstration uses mock information stored only in the browser.
+    It is not connected to a real modem, SIM, tower, carrier, or government system.
+  </div>
+
+  <div class="panel guided-demo-panel">
+    <h3>GUIDED CELLSENTRY FAILOVER DEMONSTRATION</h3>
+
+    <div class="inner">
+      <p class="guided-introduction">
+        Watch CellSentry detect a connection problem, switch to the backup,
+        maintain service, recover, and record the simulated incident.
+      </p>
+
+      <div class="guided-controls">
+        <label class="guided-speed-label" for="guidedDemoSpeed">
+  <b>DEMO SPEED:</b>
+
+  <select id="guidedDemoSpeed" class="guided-speed-select">
+    <option value="2500" selected>
+      FAST FORWARD — approximately 15 seconds
+    </option>
+
+    <option value="5000">
+      PRESENTATION TIMING — approximately 30 seconds
+    </option>
+  </select>
+</label>
+        <button class="gbtn primary-action" id="guidedDemoStart" type="button">
+          START GUIDED DEMO
+        </button>
+
+        <button class="gbtn" id="guidedDemoPause" type="button" disabled>
+          PAUSE
+        </button>
+
+        <button class="gbtn" id="guidedDemoRestart" type="button" disabled>
+          RESTART
+        </button>
+      </div>
+
+      <div
+        class="guided-status"
+        id="guidedDemoStatus"
+        role="status"
+        aria-live="polite"
+      >
+        Ready — both simulated connections are working.
+      </div>
+
+      <div class="guided-progress" id="guidedProgress">
+
+        <div class="guided-step active" data-guided-step="1">
+          <span class="guided-number">1</span>
+          <div>
+            <strong>NORMAL</strong>
+            <p>Both connections are working.</p>
+          </div>
+        </div>
+
+        <div class="guided-step" data-guided-step="2">
+          <span class="guided-number">2</span>
+          <div>
+            <strong>DETECTING PROBLEM</strong>
+            <p>The primary connection repeatedly fails.</p>
+          </div>
+        </div>
+
+        <div class="guided-step" data-guided-step="3">
+          <span class="guided-number">3</span>
+          <div>
+            <strong>SWITCHING CONNECTION</strong>
+            <p>CellSentry checks and selects the backup connection.</p>
+          </div>
+        </div>
+
+        <div class="guided-step" data-guided-step="4">
+          <span class="guided-number">4</span>
+          <div>
+            <strong>SERVICE MAINTAINED</strong>
+            <p>The site remains connected through the backup.</p>
+          </div>
+        </div>
+
+        <div class="guided-step" data-guided-step="5">
+          <span class="guided-number">5</span>
+          <div>
+            <strong>RECOVERING</strong>
+            <p>The primary connection becomes stable again.</p>
+          </div>
+        </div>
+
+        <div class="guided-step" data-guided-step="6">
+          <span class="guided-number">6</span>
+          <div>
+            <strong>REPORT CREATED</strong>
+            <p>The incident is recorded and prepared for review.</p>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="guided-narration">
+        <b>PRESENTER NARRATION:</b>
+        <span id="guidedNarration">
+          Click Start Guided Demo when you are ready.
+        </span>
+      </div>
+
+      <div class="guided-result" id="guidedDemoResult" hidden>
+        <h4>SIMULATED DEMONSTRATION COMPLETE</h4>
+
+        <p>Primary-link problem detected: <b>YES</b></p>
+        <p>Backup connection activated: <b>YES</b></p>
+        <p>Service maintained through backup: <b>YES</b></p>
+        <p>Primary connection recovered: <b>YES</b></p>
+        <p>Incident report prepared: <b>YES</b></p>
+
+        <button class="gbtn" id="guidedViewIncidents" type="button">
+          VIEW INCIDENT LOG
+        </button>
+
+        <button class="gbtn" id="guidedViewReport" type="button">
+          VIEW REPORT
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>
 <!-- ============ OVERVIEW ============ -->
 <div class="page" id="page-overview">
   <div class="panel">
@@ -821,7 +1179,399 @@ function resumeDemo(){if(!demo.running||!demo.paused)return;demo.paused=false;sc
 function restartDemo(){cancelDemo();runScriptedDemo();}
 function skipDemoStage(){if(!demo.running){runScriptedDemo();return;}clearTimeout(demo.timer);runDemoStage();}
 function operatorAction(kind,message){const site=currentSite();if(site.state!=="VERIFIED_OFFLINE")return;if(kind==="ACKNOWLEDGED")site.acknowledged=true;else if(!site.recommendations.includes(kind))site.recommendations.push(kind);addEvent(site,{category:"Operator action",severity:"INFO",link:"SITE",message,detail:"Proposed workflow record only; nothing was dispatched.",action:kind,previous:site.state,next:site.state});renderAll();}
+/* ==================================================
+   PUBLIC GUIDED DEMO
+   Uses the existing CellSentry simulation engine.
+================================================== */
 
+const guidedDemo = {
+  running: false,
+  paused: false,
+  nextPhase: 0,
+  timer: null,
+  delay: 2500
+};
+
+const guidedPhases = [
+  {
+    phase: 1,
+    status: "NORMAL — Both simulated connections are working.",
+    narration:
+      "We begin with both connections healthy and the primary connection carrying the service.",
+    run(site) {
+      resetSite();
+
+      addEvent(site, {
+        category: "Weather readiness",
+        severity: "INFO",
+        link: "A + B",
+        message: "Guided demonstration started with both connections healthy.",
+        detail: "This is simulated, in-browser information only.",
+        action: "Healthy baseline confirmed"
+      });
+    }
+  },
+
+  {
+    phase: 2,
+    status: "DETECTING PROBLEM — The primary connection is repeatedly failing.",
+    narration:
+      "The primary connection is failing. CellSentry checks it repeatedly before declaring an outage.",
+    run(site) {
+      site.A.cause = "Demand surge / network congestion";
+      site.A.congestion = 100;
+      site.A.forcedOutage = true;
+
+      evaluateSite(site);
+
+      addEvent(site, {
+        category: "Degradation",
+        severity: "WARNING",
+        link: "A",
+        message: "Guided demo detected repeated primary-link failures.",
+        detail: "Multiple checks are required to avoid reacting to a temporary interruption.",
+        action: "Failure confirmation started"
+      });
+    }
+  },
+
+  {
+    phase: 3,
+    status: "SWITCHING CONNECTION — CellSentry is selecting the backup.",
+    narration:
+      "After confirming the problem, CellSentry checks the backup connection and transfers the service.",
+    run(site) {
+      for (let check = 0; check < 6; check++) {
+        evaluateSite(site);
+      }
+
+      addEvent(site, {
+        category: "Failover",
+        severity: "WARNING",
+        link: "A → B",
+        message: "Guided demo transferred service to the backup connection.",
+        detail: "The primary connection failed its required checks.",
+        action: "Automatic failover completed"
+      });
+    }
+  },
+
+  {
+    phase: 4,
+    status: "SERVICE MAINTAINED — The site remains online through the backup.",
+    narration:
+      "The backup connection is now carrying the service, allowing the LGU site to remain connected.",
+    run(site) {
+      site.active = "B";
+
+      if (site.state !== "RUNNING_ON_BACKUP") {
+        setState(
+          site,
+          "RUNNING_ON_BACKUP",
+          "The backup connection is maintaining the simulated public service.",
+          "B",
+          "Service continuity confirmed"
+        );
+      }
+
+      for (let probe = 0; probe < 3; probe++) {
+        serviceProbe(site);
+      }
+    }
+  },
+
+  {
+    phase: 5,
+    status: "RECOVERING — The primary connection is stable again.",
+    narration:
+      "The primary connection has recovered. CellSentry verifies that it remains stable before returning the service.",
+    run(site) {
+      Object.assign(site.A, freshLink());
+
+      addEvent(site, {
+        category: "Recovery",
+        severity: "INFO",
+        link: "A",
+        message: "Primary connection restored during the Guided Demo.",
+        detail: "Controlled recovery checks started to prevent connection flapping.",
+        action: "Recovery verification started"
+      });
+
+      for (let check = 0; check < 7; check++) {
+        evaluateSite(site);
+      }
+    }
+  },
+
+  {
+    phase: 6,
+    status: "REPORT CREATED — The simulated incident has been recorded.",
+    narration:
+      "The site has returned to its primary connection, and the incident is now available for LGU review and reporting.",
+    run(site) {
+      addEvent(site, {
+        category: "Recovery",
+        severity: "INFO",
+        link: "B → A",
+        message: "GUIDED DEMO COMPLETE: Incident recorded and report prepared.",
+        detail: "Primary recovery and controlled return were completed successfully.",
+        action: "After-action report prepared"
+      });
+
+      generateReport();
+      finishGuidedDemo();
+    }
+  }
+];
+
+function setGuidedPhase(phaseNumber, statusText, narrationText) {
+  const steps = document.querySelectorAll(
+    "#page-guided .guided-step"
+  );
+
+  steps.forEach((step) => {
+    const stepNumber = Number(step.dataset.guidedStep);
+
+    step.classList.remove(
+      "active",
+      "completed",
+      "warning",
+      "danger",
+      "recovery"
+    );
+
+    step.removeAttribute("aria-current");
+
+    if (stepNumber < phaseNumber) {
+      step.classList.add("completed");
+    }
+
+    if (stepNumber === phaseNumber) {
+      step.classList.add("active");
+      step.setAttribute("aria-current", "step");
+
+      if (phaseNumber === 2) {
+        step.classList.add("warning");
+      }
+
+      if (phaseNumber === 3) {
+        step.classList.add("danger");
+      }
+
+      if (phaseNumber === 5) {
+        step.classList.add("recovery");
+      }
+    }
+  });
+
+  const status = document.getElementById("guidedDemoStatus");
+  const narration = document.getElementById("guidedNarration");
+
+  if (status) {
+    status.textContent = statusText;
+  }
+
+  if (narration) {
+    narration.textContent = narrationText;
+  }
+}
+
+function scheduleNextGuidedPhase() {
+  clearTimeout(guidedDemo.timer);
+
+  if (!guidedDemo.running || guidedDemo.paused) {
+    return;
+  }
+
+  guidedDemo.timer = setTimeout(
+    runNextGuidedPhase,
+    guidedDemo.delay
+  );
+}
+
+function runNextGuidedPhase() {
+  if (!guidedDemo.running || guidedDemo.paused) {
+    return;
+  }
+
+  if (guidedDemo.nextPhase >= guidedPhases.length) {
+    finishGuidedDemo();
+    return;
+  }
+
+  const phase = guidedPhases[guidedDemo.nextPhase];
+  const site = currentSite();
+
+  setGuidedPhase(
+    phase.phase,
+    phase.status,
+    phase.narration
+  );
+
+  phase.run(site);
+  guidedDemo.nextPhase += 1;
+
+  renderAll();
+
+  if (guidedDemo.running) {
+    scheduleNextGuidedPhase();
+  }
+}
+
+function startPublicGuidedDemo() {
+  const speedSelector = document.getElementById("guidedDemoSpeed");
+
+if (speedSelector) {
+  guidedDemo.delay = Number(speedSelector.value);
+}
+  if (guidedDemo.running) {
+    return;
+  }
+
+  cancelDemo();
+  clearTimeout(guidedDemo.timer);
+
+  guidedDemo.running = true;
+  guidedDemo.paused = false;
+  guidedDemo.nextPhase = 0;
+
+  const result = document.getElementById("guidedDemoResult");
+  const startButton = document.getElementById("guidedDemoStart");
+  const pauseButton = document.getElementById("guidedDemoPause");
+  const restartButton = document.getElementById("guidedDemoRestart");
+
+  if (result) {
+    result.hidden = true;
+  }
+
+  if (startButton) {
+    startButton.disabled = true;
+    startButton.textContent = "DEMO RUNNING...";
+  }
+
+  if (pauseButton) {
+    pauseButton.disabled = false;
+    pauseButton.textContent = "PAUSE";
+  }
+
+  if (restartButton) {
+    restartButton.disabled = false;
+  }
+
+  runNextGuidedPhase();
+}
+
+function togglePublicGuidedDemoPause() {
+  const pauseButton = document.getElementById("guidedDemoPause");
+
+  if (!guidedDemo.running) {
+    return;
+  }
+
+  if (!guidedDemo.paused) {
+    guidedDemo.paused = true;
+    clearTimeout(guidedDemo.timer);
+
+    if (pauseButton) {
+      pauseButton.textContent = "RESUME";
+    }
+
+    document.getElementById("guidedDemoStatus").textContent =
+      "PAUSED — Select Resume to continue the demonstration.";
+  } else {
+    guidedDemo.paused = false;
+
+    if (pauseButton) {
+      pauseButton.textContent = "PAUSE";
+    }
+
+    scheduleNextGuidedPhase();
+  }
+}
+
+function restartPublicGuidedDemo() {
+  clearTimeout(guidedDemo.timer);
+
+  guidedDemo.running = false;
+  guidedDemo.paused = false;
+  guidedDemo.nextPhase = 0;
+
+  startPublicGuidedDemo();
+}
+
+function finishGuidedDemo() {
+  clearTimeout(guidedDemo.timer);
+
+  guidedDemo.running = false;
+  guidedDemo.paused = false;
+
+  const startButton = document.getElementById("guidedDemoStart");
+  const pauseButton = document.getElementById("guidedDemoPause");
+  const restartButton = document.getElementById("guidedDemoRestart");
+  const result = document.getElementById("guidedDemoResult");
+
+  if (startButton) {
+    startButton.disabled = false;
+    startButton.textContent = "RUN GUIDED DEMO AGAIN";
+  }
+
+  if (pauseButton) {
+    pauseButton.disabled = true;
+    pauseButton.textContent = "PAUSE";
+  }
+
+  if (restartButton) {
+    restartButton.disabled = false;
+  }
+
+  if (result) {
+    result.hidden = false;
+  }
+
+  renderAll();
+}
+
+function openGuidedPage(pageName) {
+  document
+    .querySelectorAll(".navtabs button")
+    .forEach((button) => button.classList.remove("active"));
+
+  const targetButton = document.querySelector(
+    `.navtabs button[data-page="${pageName}"]`
+  );
+
+  if (targetButton) {
+    targetButton.classList.add("active");
+  }
+
+  showPage(pageName);
+
+  if (pageName === "report") {
+    generateReport();
+  }
+
+  renderAll();
+}
+
+document
+  .getElementById("guidedDemoStart")
+  ?.addEventListener("click", startPublicGuidedDemo);
+
+document
+  .getElementById("guidedDemoPause")
+  ?.addEventListener("click", togglePublicGuidedDemoPause);
+
+document
+  .getElementById("guidedDemoRestart")
+  ?.addEventListener("click", restartPublicGuidedDemo);
+
+document
+  .getElementById("guidedViewIncidents")
+  ?.addEventListener("click", () => openGuidedPage("incidents"));
+
+document
+  .getElementById("guidedViewReport")
+  ?.addEventListener("click", () => openGuidedPage("report"));
 function duration(ms){const n=Math.max(0,Math.floor(ms/1000)),h=String(Math.floor(n/3600)).padStart(2,"0"),m=String(Math.floor(n%3600/60)).padStart(2,"0"),s=String(n%60).padStart(2,"0");return `${h}:${m}:${s}`;}
 function renderAll(){renderTowers();renderSiteState();renderServiceMonitor();renderOverviewTable();renderStatsRow();renderReadiness();renderEscalation();renderOutcome();renderSiteLog();renderIncidentTable();renderSiteMap();renderDemo();}
 function renderTowers(){const site=currentSite();["A","B"].forEach(letter=>{const link=site[letter];document.getElementById(`tower${letter}-congestion`).value=link.congestion;document.getElementById(`tower${letter}-congestion-val`).textContent=link.congestion;document.getElementById(`tower${letter}-cause`).value=link.cause;document.getElementById(`tower${letter}-status`).textContent=link.forcedOutage?"DOWN (SIMULATED)":link.health;document.getElementById(`tower${letter}-score`).textContent=link.score;document.getElementById(`tower${letter}-latency`).textContent=link.latency;document.getElementById(`tower${letter}-loss`).textContent=link.loss;document.getElementById(`tower${letter}-fail-counter`).textContent=`${Math.min(link.consecFail,3)} of 3 failed checks`;document.getElementById(`tower${letter}-pass-counter`).textContent=`${link.consecPass} consecutive passing checks`;});}
