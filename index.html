@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CellSentry PH Monitoring Portal (SIMULATION) - Municipality of Norzagaray, Bulacan</title>
 <style>
   :root{
@@ -41,6 +42,8 @@
     font-size:11px;
     padding:6px 12px;
     display:flex;
+    flex-wrap:wrap;
+    gap:4px 12px;
     justify-content:space-between;
   }
   .topstrip span.breadcrumb{opacity:1;}
@@ -53,6 +56,7 @@
     border-bottom:2px solid var(--gov-blue);
     padding:12px 16px;
     display:flex;
+    flex-wrap:wrap;
     align-items:center;
     gap:16px;
   }
@@ -69,7 +73,7 @@
     max-height:100%;
     object-fit:contain;
   }
-  .header .titles{flex:1;}
+  .header .titles{flex:1 1 220px;min-width:220px;}
   .header h1{
     margin:0;font-size:18px;color:var(--gov-blue);
     letter-spacing:0;
@@ -86,6 +90,7 @@
     font-family:monospace;font-size:11px;text-align:right;
     color:#0a2a6b;background:#ffffff;border:1px solid #cccccc;padding:6px 10px;
     white-space:nowrap;
+    flex:0 0 auto;
   }
 
   /* ===== marquee ===== */
@@ -115,7 +120,7 @@
     background:#ffffff;color:#0a2a6b;font-weight:bold;
   }
 
-  .page{display:none;padding:16px;max-width:1180px;margin:0 auto;}
+  .page{display:none;padding:16px;max-width:1180px;margin:0 auto;box-sizing:border-box;}
   .page.active{display:block;}
 
   .panel{
@@ -126,9 +131,9 @@
     border-bottom:1px solid #cccccc;
     padding:8px 12px;font-size:13px;color:#0a2a6b;
   }
-  .panel .inner{padding:12px;}
+  .panel .inner{padding:12px;max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
 
-  table.oldtable{width:100%;border-collapse:collapse;font-size:13px;}
+  table.oldtable{width:100%;min-width:520px;border-collapse:collapse;font-size:13px;}
   table.oldtable th{
     background:#0a2a6b;color:#ffffff;
     font-size:12px;padding:6px 8px;border:1px solid #777777;text-align:left;
@@ -142,9 +147,10 @@
   }
   .st-PRIMARY_HEALTHY{background:var(--ok-bg);color:var(--ok-green);}
   .st-PRIMARY_DEGRADED{background:var(--warn-bg);color:var(--warn-amber);}
-  .st-BACKUP_ACTIVE{background:var(--warn-bg);color:var(--warn-amber);}
-  .st-BOTH_DEGRADED{background:#ffe3c2;color:#8a4400;}
-  .st-OFFLINE{background:var(--down-bg);color:var(--down-red);}
+  .st-FAILOVER_PENDING{background:#fff2a8;color:#5e4800;}
+  .st-RUNNING_ON_BACKUP{background:var(--warn-bg);color:var(--warn-amber);}
+  .st-BOTH_LINKS_DEGRADED{background:#ffe3c2;color:#8a4400;}
+  .st-VERIFIED_OFFLINE{background:var(--down-bg);color:var(--down-red);}
   .st-RECOVERY_PENDING{background:var(--recover-bg);color:var(--recover-blue);}
 
   .stats-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
@@ -183,10 +189,24 @@
   button.primary-action{background:#e0e0e0;border-color:#333333;font-weight:bold;}
 
   .disclaimer{
-    background:#ffffff;border:1px solid #8a0000;padding:10px;
+    position:relative;
+    background:#ffffff;border:1px solid #8a0000;padding:10px 40px 10px 10px;
     font-size:12px;margin-bottom:16px;color:#222222;
   }
   .disclaimer b{color:#8a0000;}
+  .disclaimer.collapsed{padding:6px 40px 6px 10px;}
+  .disclaimer .notice-text{display:block;}
+  .disclaimer.collapsed .notice-text{display:none;}
+  .disclaimer .notice-collapsed-label{display:none;font-weight:bold;color:#8a0000;}
+  .disclaimer.collapsed .notice-collapsed-label{display:inline;}
+  .notice-toggle{
+    position:absolute;top:6px;right:6px;
+    width:22px;height:22px;line-height:18px;
+    border:1px solid #8a0000;background:#ffffff;color:#8a0000;
+    font-weight:bold;font-size:14px;cursor:pointer;border-radius:0;
+    padding:0;
+  }
+  .notice-toggle:hover{background:#fdecec;}
 
   .footer{
     background:#0a2a6b;color:#ffffff;font-size:11px;
@@ -206,26 +226,50 @@
   .sitemap{
     position:relative;
     width:100%;
-    height:380px;
-    background:
-      linear-gradient(#e2e8f0 1px, transparent 1px) 0 0/100% 38px,
-      linear-gradient(90deg, #e2e8f0 1px, transparent 1px) 0 0/38px 100%,
-      #eef2f7;
+    height:420px;
+    background:#eef2f7;
     border:1px solid #999999;
     overflow:hidden;
   }
+  .sitemap-basemap{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    border:0;
+    display:block;
+    pointer-events:none;
+    filter:grayscale(45%) contrast(1.05) brightness(1.05) saturate(0.9);
+    z-index:0;
+  }
+  .sitemap-basemap-cover{
+    position:absolute;
+    inset:0;
+    z-index:1;
+    background:transparent;
+  }
+  .sitemap-grid{
+    position:absolute;
+    inset:0;
+    z-index:2;
+    pointer-events:none;
+    background:
+      linear-gradient(rgba(20,30,50,0.10) 1px, transparent 1px) 0 0/100% 38px,
+      linear-gradient(90deg, rgba(20,30,50,0.10) 1px, transparent 1px) 0 0/38px 100%;
+  }
   .sitemap-caption{
-    position:absolute;top:8px;left:10px;
+    position:absolute;top:8px;left:10px;z-index:3;
     font-size:11px;font-weight:bold;color:#555555;
     background:rgba(255,255,255,0.85);padding:2px 6px;border:1px solid #cccccc;
   }
   .sitemap-compass{
-    position:absolute;top:8px;right:10px;
+    position:absolute;top:8px;right:10px;z-index:3;
     font-size:11px;font-weight:bold;color:#555555;
     background:rgba(255,255,255,0.85);padding:2px 6px;border:1px solid #cccccc;
   }
   .map-node{
     position:absolute;
+    z-index:4;
     transform:translate(-50%,-50%);
     min-width:108px;
     border:2px solid #000000;
@@ -242,16 +286,6 @@
   .map-legend .swatch{
     display:inline-block;width:11px;height:11px;border:1px solid #777777;
     margin-right:4px;vertical-align:middle;
-  }
-  .real-map-wrap{
-    border:1px solid #999999;
-    margin-top:6px;
-  }
-  .real-map-frame{
-    width:100%;
-    height:320px;
-    border:0;
-    display:block;
   }
   select, .sitesel{font-size:12px;padding:4px;border:1px solid #777777;}
   .logline{font-family:monospace;font-size:11px;padding:3px 0;border-bottom:1px solid #eee;}
@@ -288,6 +322,62 @@
   .devconsole button.ok{color:#88ff88;border-color:#88ff88;background:#2b2b2b;}
   .devconsole button.primary-action{background:#555555;color:#ffffff;border-color:#888888;}
   .devconsole select, .devconsole .sitesel{background:#333333;color:#ffffff;border:1px solid #555555;}
+
+  /* Incremental continuity-workflow components; scoped to avoid changing the portal system. */
+  .continuity-monitor .continuity-grid,.alert-mode-panel .continuity-grid,.escalation-panel .continuity-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:6px 18px;
+  }
+  .continuity-monitor .service-banner{border:2px solid #777777;padding:8px;margin-bottom:8px;font-weight:bold;}
+  .continuity-monitor .service-online{border-color:#60fa00;}
+  .continuity-monitor .service-pending{border-color:#ffbf00;}
+  .continuity-monitor .service-offline{border-color:#ff5e00;}
+  .alert-mode-panel.active{border:2px solid #ffbf00;}
+  .escalation-panel{border:2px solid #ff5e00;}
+  .escalation-panel[hidden],.result-card[hidden],#lguOutcomePanel[hidden]{display:none;}
+  .result-card{border:2px solid #60fa00;padding:10px;margin-top:10px;}
+  .demo-progress{font-family:monospace;border:1px solid #555555;padding:7px;margin-top:8px;}
+  .incident-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px;}
+  .operator-message{font-weight:bold;}
+  details.technical-detail{margin-top:3px;font-size:11px;}
+  .sim-label{font-size:10px;font-weight:bold;color:#8a0000;}
+  .devconsole .sim-label{color:#ff8888;}
+  .seal-fallback{width:64px;height:64px;border:2px solid #0a2a6b;border-radius:50%;display:none;align-items:center;justify-content:center;text-align:center;font-size:9px;font-weight:bold;color:#0a2a6b;background:#fff;}
+
+  /* ===== responsive breakpoints ===== */
+  @media (max-width: 900px){
+    .page{padding:12px;}
+    .sitemap{height:340px;}
+  }
+
+  @media (max-width: 640px){
+    body{font-size:13px;}
+    .topstrip{font-size:10px;padding:6px 8px;}
+    .header{padding:10px;gap:10px;}
+    .seal-container{width:48px;height:48px;}
+    .header .titles{min-width:160px;flex:1 1 160px;}
+    .header h1{font-size:15px;}
+    .header h2{font-size:11px;}
+    .header .clockbox{font-size:10px;padding:5px 8px;text-align:left;flex:1 1 100%;}
+    .navtabs button{padding:7px 10px;font-size:11px;}
+    .page{padding:8px;}
+    .panel .inner{padding:8px;}
+    .stats-row{gap:8px;}
+    .statbox{min-width:44%;padding:8px 4px;}
+    .statbox .num{font-size:18px;}
+    .sitemap{height:280px;}
+    .map-node{min-width:78px;padding:4px 5px;font-size:9px;}
+    .map-node .map-node-name{font-size:9px;}
+    .map-node .map-node-state{font-size:8px;}
+    .sitemap-caption, .sitemap-compass{font-size:9px;padding:2px 4px;}
+    .towerbox{min-width:100%;}
+    .continuity-monitor .continuity-grid,.alert-mode-panel .continuity-grid,.escalation-panel .continuity-grid{grid-template-columns:1fr;}
+    .disclaimer{font-size:11px;}
+  }
+
+  @media (max-width: 420px){
+    .statbox{min-width:100%;}
+    .sitemap{height:240px;}
+  }
 </style>
 </head>
 <body>
@@ -303,7 +393,8 @@
 
 <div class="header">
   <div class="seal-container">
-    <img src="./images/seal.png" alt="Norzagaray Seal" class="seal-img" width="64" height="64">
+    <img src="./images/seal.png" alt="Simulated municipal seal" class="seal-img" width="64" height="64" onerror="this.style.display='none';document.getElementById('sealFallback').style.display='flex'">
+    <div id="sealFallback" class="seal-fallback" aria-label="Generic simulated municipal seal">LGU<br>SIM</div>
   </div>
   <div class="titles">
     <h1>CellSentry PH Municipal Connectivity Monitoring Portal</h1>
@@ -331,15 +422,25 @@
 
 <!-- ============ HOME ============ -->
 <div class="page active" id="page-home">
-  <div class="disclaimer">
-    <b>NOTICE:</b> This is a non-official, student-built <b>SIMULATION</b> created for the DICT Philippine Startup Challenge (CellSentry PH). It is <b>not</b> an official government website, is <b>not</b> connected to any real modem, tower, or carrier, and shows no real outage data.
+  <div class="disclaimer" id="noticeBox">
+    <button class="notice-toggle" id="noticeToggle" onclick="toggleNotice()" aria-label="Minimize notice" title="Minimize notice">&#8722;</button>
+    <span class="notice-collapsed-label">NOTICE (minimized) &mdash; click + to view</span>
+    <div class="notice-text">
+      <b>NOTICE:</b> This is a non-official, student-built <b>SIMULATION</b> created for the DICT Philippine Startup Challenge (CellSentry PH). It is <b>not</b> an official government website, is <b>not</b> connected to any real modem, tower, or carrier, and shows no real outage data.
+    </div>
   </div>
 
   <div class="stats-row">
     <div class="statbox"><div class="num" id="statTotalSites">6</div><div class="lbl">SITES MONITORED (SIMULATED)</div></div>
     <div class="statbox"><div class="num" id="statHealthy">-</div><div class="lbl">PRIMARY HEALTHY</div></div>
+    <div class="statbox"><div class="num" id="statDegraded">-</div><div class="lbl">DEGRADED / PENDING</div></div>
     <div class="statbox"><div class="num" id="statBackup">-</div><div class="lbl">RUNNING ON BACKUP</div></div>
-    <div class="statbox"><div class="num" id="statOffline">-</div><div class="lbl">OFFLINE</div></div>
+    <div class="statbox"><div class="num" id="statOffline">-</div><div class="lbl">VERIFIED OFFLINE</div></div>
+  </div>
+
+  <div class="panel" id="lguOutcomePanel" hidden>
+    <h3>LGU-WIDE CONTINUITY RESULT &mdash; SIMULATED</h3>
+    <div class="inner" id="lguOutcome"></div>
   </div>
 
   <div class="panel">
@@ -347,16 +448,13 @@
     <div class="inner">
       <div class="hint">Node layout below is derived from the actual relative positions of these barangays (via Google Places data) so the arrangement roughly reflects real geography &mdash; it is still a schematic box diagram, not a precise geodetic plot. Box color reflects each node's current simulated connectivity state. Click a node to jump to its row on the LGU Site Overview tab.</div>
       <div class="sitemap" id="siteMap">
-        <span class="sitemap-caption">NORZAGARAY, BULACAN (SCHEMATIC, POSITIONS FROM REAL BARANGAY DATA)</span>
+        <iframe id="siteMapBase" class="sitemap-basemap" loading="lazy" referrerpolicy="no-referrer-when-downgrade" tabindex="-1" aria-hidden="true"></iframe>
+        <div class="sitemap-basemap-cover"></div>
+        <div class="sitemap-grid"></div>
+        <span class="sitemap-caption">NORZAGARAY, BULACAN &mdash; MUNICIPAL CENTER REFERENCE (SCHEMATIC)</span>
         <span class="sitemap-compass">N &uarr;</span>
       </div>
       <div class="map-legend" id="mapLegend"></div>
-      <div class="hint" style="margin-top:10px;">
-        Reference (real, live) map of the area &mdash; not part of the simulation, shown for geographic context only:
-      </div>
-      <div class="real-map-wrap">
-        <iframe id="realMapFrame" class="real-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-      </div>
     </div>
   </div>
 
@@ -383,7 +481,7 @@
       <table class="oldtable" id="overviewTable">
         <tr>
           <th>SITE NAME</th><th>BARANGAY</th><th>TYPE</th><th>ACTIVE LINK</th>
-          <th>STATE</th><th>HEALTH SCORE</th><th>BATTERY (SIM)</th>
+          <th>STATE</th><th>HEALTH SCORE</th><th>UPS CHARGE (SIMULATED)</th><th>AC / HEARTBEAT</th>
         </tr>
       </table>
     </div>
@@ -403,9 +501,19 @@
     <div class="inner">
       <div class="hint" style="color:#dddddd;">Triggers instantly on click and applies to every simulated site LGU-wide at once &mdash; this is <b>not</b> a timed/scripted sequence. Sites closer to the simulated typhoon track take a harder hit (forced outages more likely); sites further out just see elevated congestion. Battery levels also dip to simulate a brief power interruption.</div>
       <div class="btnrow">
+        <button class="gbtn primary-action" onclick="activateAlertMode()">SIMULATE OFFICIAL WEATHER-ADVISORY TRIGGER</button>
+        <button class="gbtn" onclick="clearAlertMode()">CLEAR ALERT MODE</button>
         <button class="gbtn danger" style="font-weight:bold;" onclick="simulateTyphoonAllSites()">⚠ SIMULATE TYPHOON PASSING OVER LGU (ALL SITES)</button>
         <button class="gbtn ok" onclick="resetAllSites()">CLEAR TYPHOON / RESET ALL SITES</button>
       </div>
+    </div>
+  </div>
+  <div class="panel alert-mode-panel" id="alertModePanel">
+    <h3>WEATHER ALERT MODE &mdash; PROPOSED WORKFLOW</h3>
+    <div class="inner">
+      <div id="alertModeBanner"><b>STATUS:</b> Routine readiness monitoring</div>
+      <div class="continuity-grid" id="readinessSummary"></div>
+      <div class="hint">No live PAGASA feed is connected. The trigger and all verification actions are local simulations.</div>
     </div>
   </div>
   <div class="panel">
@@ -431,23 +539,48 @@
       <div class="readout-row"><b>Last transition:</b> <span id="siteLastTransition">(none yet)</span></div>
       <div class="btnrow">
         <button class="gbtn primary-action" onclick="runScriptedDemo()">RUN ONE-MINUTE SCRIPTED DEMO</button>
+        <button class="gbtn" onclick="pauseDemo()">PAUSE</button>
+        <button class="gbtn" onclick="resumeDemo()">RESUME</button>
+        <button class="gbtn" onclick="restartDemo()">RESTART</button>
+        <button class="gbtn" onclick="skipDemoStage()">SKIP TO NEXT STAGE</button>
         <button class="gbtn" onclick="clearAllFaults()">CLEAR ALL SIMULATED FAULTS</button>
         <button class="gbtn danger" onclick="resetSite()">RESET SITE</button>
       </div>
+      <div class="demo-progress" id="demoProgress">Scripted demo idle.</div>
+    </div>
+  </div>
+
+  <div class="panel continuity-monitor">
+    <h3>CRITICAL SITE SERVICE &mdash; SIMULATED</h3>
+    <div class="inner">
+      <div id="serviceBanner" class="service-banner service-online">LGU Coordination Portal: ONLINE</div>
+      <div class="continuity-grid">
+        <div><b>Active link:</b> <span id="serviceActiveLink">-</span></div>
+        <div><b>Last successful service probe:</b> <span id="serviceLastProbe">-</span></div>
+        <div><b>Continuous availability:</b> <span id="serviceDuration">00:00:00</span></div>
+        <div><b>Simulated requests:</b> <span id="serviceRequests">0</span></div>
+        <div><b>Interrupted simulated requests:</b> <span id="serviceInterrupted">0</span></div>
+        <div><b>Last failover duration:</b> <span id="serviceFailover">Not performed</span></div>
+      </div>
+      <div class="sim-label">SIMULATED SERVICE PROBE &mdash; NO LIVE DEVICE CONNECTED</div>
+      <div id="failoverResult" class="result-card" hidden></div>
     </div>
   </div>
 
   <div class="towers-flex">
     <div class="towerbox" id="towerA-box">
-      <h4>TOWER A &mdash; GLOBE (PRIMARY LINK)</h4>
+      <h4>TOWER A &mdash; GLOBE SIMULATED PROFILE (PRIMARY LINK)</h4>
       <div class="body">
         <label>Simulated congestion level: <span id="towerA-congestion-val">0</span>%</label>
         <input type="range" id="towerA-congestion" min="0" max="100" value="0" oninput="onCongestionInput('A')">
+        <label>Simulated failure cause:</label>
+        <select id="towerA-cause" class="sitesel" onchange="onCauseChange('A')"></select>
         <div class="readout-row"><b>Status:</b> <span id="towerA-status">HEALTHY</span></div>
         <div class="readout-row"><b>Health score:</b> <span id="towerA-score">100</span>/100</div>
         <div class="readout-row"><b>Latency:</b> <span id="towerA-latency">32</span> ms</div>
         <div class="readout-row"><b>Packet loss:</b> <span id="towerA-loss">0</span>%</div>
-        <div class="readout-row"><b>Consecutive fail/pass ticks:</b> <span id="towerA-counters">0 / 0</span></div>
+        <div class="readout-row"><b>Failure confirmation:</b> <span id="towerA-fail-counter">0 of 3 failed checks</span></div>
+        <div class="readout-row"><b>Recovery confirmation:</b> <span id="towerA-pass-counter">0 consecutive passing checks</span></div>
         <div class="btnrow">
           <button class="gbtn danger" onclick="forceOutage('A')">SIMULATE TOTAL OUTAGE</button>
           <button class="gbtn ok" onclick="clearFault('A')">RESTORE TOWER A</button>
@@ -456,20 +589,39 @@
     </div>
 
     <div class="towerbox" id="towerB-box">
-      <h4>TOWER B &mdash; SMART (BACKUP LINK)</h4>
+      <h4>TOWER B &mdash; SMART SIMULATED PROFILE (BACKUP LINK)</h4>
       <div class="body">
         <label>Simulated congestion level: <span id="towerB-congestion-val">0</span>%</label>
         <input type="range" id="towerB-congestion" min="0" max="100" value="0" oninput="onCongestionInput('B')">
+        <label>Simulated failure cause:</label>
+        <select id="towerB-cause" class="sitesel" onchange="onCauseChange('B')"></select>
         <div class="readout-row"><b>Status:</b> <span id="towerB-status">HEALTHY</span></div>
         <div class="readout-row"><b>Health score:</b> <span id="towerB-score">100</span>/100</div>
         <div class="readout-row"><b>Latency:</b> <span id="towerB-latency">38</span> ms</div>
         <div class="readout-row"><b>Packet loss:</b> <span id="towerB-loss">0</span>%</div>
-        <div class="readout-row"><b>Consecutive fail/pass ticks:</b> <span id="towerB-counters">0 / 0</span></div>
+        <div class="readout-row"><b>Failure confirmation:</b> <span id="towerB-fail-counter">0 of 3 failed checks</span></div>
+        <div class="readout-row"><b>Recovery confirmation:</b> <span id="towerB-pass-counter">0 consecutive passing checks</span></div>
         <div class="btnrow">
           <button class="gbtn danger" onclick="forceOutage('B')">SIMULATE TOTAL OUTAGE</button>
           <button class="gbtn ok" onclick="clearFault('B')">RESTORE TOWER B</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div class="panel escalation-panel" id="escalationPanel" hidden>
+    <h3>CRITICAL &mdash; VERIFIED COMMUNICATIONS BLACKOUT</h3>
+    <div class="inner">
+      <div class="continuity-grid" id="escalationStatus"></div>
+      <p><b>RECOMMENDED OPERATIONAL RESPONSE:</b> Activate an alternate emergency-communications procedure.</p>
+      <div class="btnrow">
+        <button class="gbtn" onclick="operatorAction('ACKNOWLEDGED','Incident acknowledged by Municipal DRRM Operator (Simulated)')">ACKNOWLEDGE INCIDENT</button>
+        <button class="gbtn" onclick="operatorAction('FIELD INSPECTION','Field inspection recommendation recorded')">ASSIGN FIELD INSPECTION</button>
+        <button class="gbtn" onclick="operatorAction('BACKUP POWER CHECK','Backup-power check recommendation recorded')">RECOMMEND BACKUP-POWER CHECK</button>
+        <button class="gbtn" onclick="operatorAction('RADIO COORDINATION','Radio coordination recommendation recorded')">RECOMMEND RADIO COORDINATION</button>
+        <button class="gbtn" onclick="operatorAction('SATELLITE DEPLOYMENT','Satellite escalation recommendation recorded')">RECOMMEND SATELLITE DEPLOYMENT</button>
+      </div>
+      <div class="hint">These controls record proposed workflow actions only. No personnel or equipment is actually dispatched.</div>
     </div>
   </div>
 
@@ -487,8 +639,9 @@
   <div class="panel">
     <h3>CONSOLIDATED INCIDENT LOG &mdash; ALL SIMULATED SITES</h3>
     <div class="inner">
+      <div class="incident-filters" id="incidentFilters" aria-label="Incident log filters"></div>
       <table class="oldtable" id="incidentTable">
-        <tr><th style="width:150px;">TIMESTAMP</th><th>SITE</th><th>EVENT</th><th>DETAIL</th></tr>
+        <tr><th style="width:145px;">TIMESTAMP</th><th>SITE</th><th>CATEGORY / SEVERITY</th><th>OPERATOR MESSAGE / DETAIL</th></tr>
       </table>
       <div class="hint" id="incidentEmptyHint">No simulated incidents logged yet. Go to the Simulator tab and raise congestion on Tower A or Tower B.</div>
     </div>
@@ -500,7 +653,8 @@
   <div class="panel">
     <h3>GENERATE OUTAGE REPORT (PRINT-STYLE, SIMULATED)</h3>
     <div class="inner">
-      <button class="gbtn primary-action" onclick="generateReport()">GENERATE REPORT FOR SELECTED SITE</button>
+      <button class="gbtn primary-action" onclick="generateReport()">GENERATE LATEST AFTER-ACTION REPORT</button>
+      <button class="gbtn" onclick="downloadReport()">DOWNLOAD REPORT (.TXT)</button>
       <div id="reportOutput" style="margin-top:12px;"></div>
     </div>
   </div>
@@ -514,8 +668,11 @@
       <p>This portal is a purely front-end, in-browser <b>simulation</b> built to illustrate, for a pitch or judging session, what a CellSentry PH municipal monitoring dashboard could show. It intentionally imitates the visual style of older Philippine government web portals for demonstration flavor.</p>
       <p><b>What this IS:</b></p>
       <ul>
-        <li>A scripted, in-memory model of the CellSentry failover state machine (PRIMARY_HEALTHY &rarr; PRIMARY_DEGRADED &rarr; BACKUP_ACTIVE &rarr; BOTH_DEGRADED &rarr; OFFLINE &rarr; RECOVERY_PENDING).</li>
+        <li>A scripted, in-memory model of the CellSentry failover state machine (PRIMARY_HEALTHY &rarr; PRIMARY_DEGRADED &rarr; FAILOVER_PENDING &rarr; RUNNING_ON_BACKUP &rarr; BOTH_LINKS_DEGRADED &rarr; VERIFIED_OFFLINE &rarr; RECOVERY_PENDING).</li>
         <li>An interactive way to raise or clear simulated "congestion" on Tower A or Tower B and see health scores, latency, and packet loss respond, and the site fail over automatically once congestion is severe and sustained.</li>
+        <li>A concept-stage demonstration of managed dual-carrier readiness: continuous health checks, automated failover, service-continuity evidence, structured escalation, and after-action reporting. It is not equivalent to a phone merely offering two SIM slots.</li>
+        <li>Satellite appears only as a recommended escalation for a verified terrestrial blackout; it is not included connectivity and no deployment is claimed.</li>
+        <li>A proposed support layer for DICT-aligned resilient-government communications: it keeps terrestrial links watched and ready, records escalation decisions, and helps identify when separate radio, satellite, backup-power, or field-response assets should be considered.</li>
       </ul>
       <p><b>What this is NOT:</b></p>
       <ul>
@@ -523,6 +680,7 @@
         <li>Not an official Philippine government website, and not affiliated with any specific real LGU, DRRMO, or the DICT.</li>
         <li>Not a source of real emergency advisories &mdash; all "advisory" content on the Home tab is placeholder text.</li>
         <li>Data resets on page reload; nothing here is stored server-side.</li>
+        <li>The ₱1,490 readiness fee is a proposed commercial model for monitoring, maintained profiles, alert-mode checks, incident workflow, and reporting; it is not a live price offer or procurement commitment.</li>
       </ul>
       <p><b>Who made this:</b></p>
       <ul>
@@ -546,524 +704,157 @@
 </div>
 
 <script>
-/* =========================================================================
-   CellSentry PH — Dashboard Simulation (client-side only, no backend)
-   Mirrors the failover state machine described in the CellSentry PH spec:
-   consecutive-failure counting + asymmetric dwell/recovery hold to avoid
-   flapping. All data is in-memory and resets on reload by design.
-   ========================================================================= */
-
-const CONSEC_FAIL_THRESHOLD = 3;
-const CONSEC_RECOVER_THRESHOLD = 3;
-const RECOVERY_HOLD_TICKS = 4;
-
-const SIMULATED_LGU = "Municipality of Norzagaray, Bulacan";
-
-const SITE_NAMES = [
-  {id:"s1", name:"Brgy. Tigbe Evacuation Center", brgy:"Tigbe", type:"Evacuation Center"},
-  {id:"s2", name:"Brgy. Bigte Rural Health Unit", brgy:"Bigte", type:"Rural Health Unit"},
-  {id:"s3", name:"Poblacion Barangay Hall (Main DRRMO Post)", brgy:"Poblacion", type:"Barangay Hall"},
-  {id:"s4", name:"Brgy. San Mateo Emergency Post", brgy:"San Mateo", type:"Emergency Post"},
-  {id:"s5", name:"Brgy. Minuyan Health Station", brgy:"Minuyan", type:"Rural Health Unit"},
-  {id:"s6", name:"Brgy. Partida Barangay Hall", brgy:"Partida", type:"Barangay Hall"},
+/* CellSentry PH concept simulator: local, in-memory, and intentionally not connected to live systems. */
+const CONSEC_FAIL_THRESHOLD=3, CONSEC_RECOVER_THRESHOLD=3, RECOVERY_HOLD_TICKS=4;
+const SIMULATED_LGU="Municipality of Norzagaray, Bulacan";
+const SITE_NAMES=[
+ {id:"s1",name:"Brgy. Tigbe Evacuation Center",brgy:"Tigbe",type:"Evacuation Center"},
+ {id:"s2",name:"Brgy. Bigte Rural Health Unit",brgy:"Bigte",type:"Rural Health Unit"},
+ {id:"s3",name:"Poblacion Barangay Hall (Main DRRMO Post)",brgy:"Poblacion",type:"Barangay Hall"},
+ {id:"s4",name:"Brgy. San Mateo Emergency Post",brgy:"San Mateo",type:"Emergency Post"},
+ {id:"s5",name:"Brgy. Minuyan Health Station",brgy:"Minuyan",type:"Rural Health Unit"},
+ {id:"s6",name:"Brgy. Partida Barangay Hall",brgy:"Partida",type:"Barangay Hall"}
 ];
+const REAL_COORDS={s1:{lat:14.8669058,lng:121.0377563},s2:{lat:14.8538359,lng:121.0838920},s3:{lat:14.9050366,lng:121.0423342},s4:{lat:14.8735720,lng:121.1277954},s5:{lat:14.8703524,lng:121.0793767},s6:{lat:14.9003775,lng:121.0363768}};
+const FAILURE_CAUSES=["None / routine conditions","Demand surge / network congestion","Commercial power interruption","Tower unavailable","Backhaul disruption","Weak or unstable radio link","Local device or antenna fault","Both carriers unavailable"];
+const FILTERS=["All events","Weather readiness","Degradation","Failover","Verified offline","Recovery","Operator action"];
+const STATE_LABELS={PRIMARY_HEALTHY:"Primary healthy",PRIMARY_DEGRADED:"Primary degraded",FAILOVER_PENDING:"Failover pending",RUNNING_ON_BACKUP:"Running on backup",BOTH_LINKS_DEGRADED:"Both links degraded",VERIFIED_OFFLINE:"Verified offline",RECOVERY_PENDING:"Recovery pending"};
+const MAP_LEGEND=Object.entries(STATE_LABELS).map(([state,label])=>({cls:"st-"+state,label}));
 
-/* Approximate, non-geodetic schematic positions (percent of map box) for each
-   simulated node — for illustration only, not surveyed coordinates. */
-/* Real-world reference coordinates (from Google Places data) for each simulated
-   node's barangay. Used only to derive the node map's relative layout and to
-   link out to an actual map — the node BOXES themselves are still a schematic,
-   not a geodetically precise plot. */
-const REAL_COORDS = {
-  s1: {lat:14.8669058, lng:121.0377563}, // Tigbe Barangay Hall
-  s2: {lat:14.8538359, lng:121.0838920}, // Bigte Barangay Hall
-  s3: {lat:14.9050366, lng:121.0423342}, // Norzagaray Municipal Hall (Poblacion)
-  s4: {lat:14.8735720, lng:121.1277954}, // San Mateo Barangay Hall
-  s5: {lat:14.8703524, lng:121.0793767}, // Barangay Minuyan Hall
-  s6: {lat:14.9003775, lng:121.0363768}, // Partida (barangay center)
-};
-
-/* Node map positions derived from the REAL_COORDS bounding box above, converted
-   to percentage coordinates with ~10% padding on each edge. Simple equirectangular
-   projection — fine at this scale, not a substitute for an actual GIS plot. */
 function buildNodeCoordsFromRealData(){
-  const lats = Object.values(REAL_COORDS).map(c=>c.lat);
-  const lngs = Object.values(REAL_COORDS).map(c=>c.lng);
-  const latMin = Math.min(...lats), latMax = Math.max(...lats);
-  const lngMin = Math.min(...lngs), lngMax = Math.max(...lngs);
-  const latRange = (latMax - latMin) || 1;
-  const lngRange = (lngMax - lngMin) || 1;
-  const pad = 10, span = 80;
-  const coords = {};
-  Object.keys(REAL_COORDS).forEach(id=>{
-    const c = REAL_COORDS[id];
-    coords[id] = {
-      x: pad + ((c.lng - lngMin) / lngRange) * span,
-      y: pad + ((latMax - c.lat) / latRange) * span // higher latitude = further north = smaller y
-    };
-  });
-  return coords;
+ const vals=Object.values(REAL_COORDS),lats=vals.map(c=>c.lat),lngs=vals.map(c=>c.lng),latMin=Math.min(...lats),latMax=Math.max(...lats),lngMin=Math.min(...lngs),lngMax=Math.max(...lngs),coords={};
+ Object.keys(REAL_COORDS).forEach(id=>{const c=REAL_COORDS[id];coords[id]={x:10+((c.lng-lngMin)/((lngMax-lngMin)||1))*80,y:10+((latMax-c.lat)/((latMax-latMin)||1))*80};});return coords;
 }
-const NODE_COORDS = buildNodeCoordsFromRealData();
-
-const MAP_CENTER = (()=>{
-  const vals = Object.values(REAL_COORDS);
-  const lat = vals.reduce((s,c)=>s+c.lat,0)/vals.length;
-  const lng = vals.reduce((s,c)=>s+c.lng,0)/vals.length;
-  return {lat, lng};
-})();
-
-const MAP_LEGEND = [
-  {cls:"st-PRIMARY_HEALTHY", label:"Primary healthy"},
-  {cls:"st-PRIMARY_DEGRADED", label:"Primary degraded"},
-  {cls:"st-BACKUP_ACTIVE", label:"Running on backup"},
-  {cls:"st-RECOVERY_PENDING", label:"Recovery pending"},
-  {cls:"st-BOTH_DEGRADED", label:"Both links degraded"},
-  {cls:"st-OFFLINE", label:"Offline"},
-];
-
-function freshLink(){
-  return { congestion:0, forcedOutage:false, health:"HEALTHY", score:100,
-           latency:32, loss:0, consecFail:0, consecPass:0 };
+const NODE_COORDS=buildNodeCoordsFromRealData();
+const MAP_CENTER=(()=>{const v=Object.values(REAL_COORDS);return{lat:v.reduce((n,c)=>n+c.lat,0)/v.length,lng:v.reduce((n,c)=>n+c.lng,0)/v.length};})();
+function refineNodeOverlapsDOM(map){
+ const mr=map.getBoundingClientRect();if(!mr.width||!mr.height)return;const items=[...map.querySelectorAll(".map-node")].map(el=>{const r=el.getBoundingClientRect();return{el,w:r.width,h:r.height,cx:r.left-mr.left+r.width/2,cy:r.top-mr.top+r.height/2};});
+ for(let k=0;k<20;k++){let moved=false;for(let i=0;i<items.length;i++)for(let j=i+1;j<items.length;j++){const a=items[i],b=items[j],dx=b.cx-a.cx,dy=b.cy-a.cy,ox=(a.w+b.w)/2+4-Math.abs(dx),oy=(a.h+b.h)/2+4-Math.abs(dy);if(ox>0&&oy>0){moved=true;if(ox<oy){const q=ox/2*(dx<0?-1:1);a.cx-=q;b.cx+=q;}else{const q=oy/2*(dy<0?-1:1);a.cy-=q;b.cy+=q;}}}if(!moved)break;}
+ items.forEach(x=>{x.cx=Math.min(mr.width-x.w/2-4,Math.max(x.w/2+4,x.cx));x.cy=Math.min(mr.height-x.h/2-4,Math.max(x.h/2+26,x.cy));x.el.style.left=x.cx/mr.width*100+"%";x.el.style.top=x.cy/mr.height*100+"%";});
 }
-
-function freshSite(meta){
-  return {
-    ...meta,
-    A: freshLink(), B: freshLink(),
-    state:"PRIMARY_HEALTHY", active:"A",
-    recoveryHoldCounter:0, activeSinceTicks:9999,
-    lastTransition:"(none yet)", battery: 78 + Math.floor(Math.random()*15),
-    log:[]
-  };
+function freshLink(){return{congestion:0,forcedOutage:false,cause:FAILURE_CAUSES[0],health:"HEALTHY",score:100,latency:32,loss:0,consecFail:0,consecPass:0};}
+function freshSite(meta){const now=Date.now();return{...meta,A:freshLink(),B:freshLink(),state:"PRIMARY_HEALTHY",active:"A",recoveryHoldCounter:0,failoverPendingTicks:0,lastTransition:"(none yet)",upsCharge:82,acInput:"Available",heartbeat:now,lastTelemetry:now,service:{name:"LGU Coordination Portal",status:"ONLINE",startedAt:now,lastProbe:now,requests:0,interrupted:0,lastFailoverMs:null,failoverStartedAt:null},incidentStartedAt:null,resolutionTime:null,acknowledged:false,recommendations:[],log:[]};}
+const sim={sites:SITE_NAMES.map(freshSite),currentSiteId:"s1",incidents:[],alertMode:false,scenario:null,scenarioStart:null,scenarioEnd:null,incidentFilter:"All events",tickMs:500};
+let tickTimer=null,latestReportText="";
+const demo={running:false,paused:false,index:0,timer:null,siteId:null};
+function getSite(id){return sim.sites.find(s=>s.id===id);}function currentSite(){return getSite(sim.currentSiteId);}function nowText(){return new Date().toLocaleString();}function esc(v){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));}
+function carrierLabel(letter){return letter==="A"?"Tower A — Globe simulated profile (Primary)":"Tower B — Smart simulated profile (Backup)";}
+function categoryForState(s){return s==="PRIMARY_DEGRADED"?"Degradation":s==="FAILOVER_PENDING"||s==="RUNNING_ON_BACKUP"?"Failover":s==="VERIFIED_OFFLINE"||s==="BOTH_LINKS_DEGRADED"?"Verified offline":s==="RECOVERY_PENDING"||s==="PRIMARY_HEALTHY"?"Recovery":"Degradation";}
+function addEvent(site,{category="Degradation",severity="INFO",link="SITE",message,detail="",action="Observed",previous=site?site.state:"—",next=site?site.state:"—"}){
+ const ev={id:Date.now()+Math.random(),time:nowText(),site:site?site.name:"ALL SITES",category,severity,link,message,detail,action,previous,next,ack:site&&site.acknowledged?"Acknowledged":"Open"};sim.incidents.unshift(ev);if(sim.incidents.length>250)sim.incidents.pop();
+ if(site){site.log.unshift(`[${new Date().toLocaleTimeString()}] ${message}${detail?" — "+detail:""}`);if(site.log.length>60)site.log.pop();}
 }
-
-let sites = SITE_NAMES.map(freshSite);
-let currentSiteId = sites[0].id;
-let globalIncidents = [];
-let tickTimer = null;
-let tickIntervalMs = 500;
-
-function getSite(id){ return sites.find(s=>s.id===id); }
-function currentSite(){ return getSite(currentSiteId); }
-
-/* ---- health model driven by congestion slider / forced outage ---- */
-function computeLinkHealth(link){
-  if(link.forcedOutage){
-    link.health = "DOWN"; link.score = 0; link.latency = 4000; link.loss = 100;
-    return;
-  }
-  const c = link.congestion;
-  link.latency = Math.round(30 + c*4.2);
-  link.loss = Math.min(100, Math.round(c*0.9));
-  if(c >= 80){ link.health = "DOWN"; link.score = Math.max(0, 100-c); }
-  else if(c >= 35){ link.health = "DEGRADED"; link.score = 100-c; }
-  else { link.health = "HEALTHY"; link.score = 100-c; }
+function computeLinkHealth(link){if(link.forcedOutage){link.health="DOWN";link.score=0;link.latency=4000;link.loss=100;return;}const c=link.congestion;link.latency=Math.round(30+c*4.2);link.loss=Math.min(100,Math.round(c*.9));if(c>=80){link.health="DOWN";link.score=Math.max(0,100-c);}else if(c>=35){link.health="DEGRADED";link.score=100-c;}else{link.health="HEALTHY";link.score=100-c;}}
+function recordProbe(link){if(link.health==="HEALTHY"){link.consecPass++;link.consecFail=0;}else if(link.health==="DOWN"){link.consecFail++;link.consecPass=0;}else{link.consecFail=0;link.consecPass=0;}}
+function setState(site,next,reason,link="SITE",action="State updated"){
+ if(next===site.state)return;const previous=site.state;site.state=next;site.lastTransition=reason||STATE_LABELS[next];
+ if(next==="VERIFIED_OFFLINE"&&!site.incidentStartedAt)site.incidentStartedAt=Date.now();if(previous==="VERIFIED_OFFLINE"&&next!=="VERIFIED_OFFLINE")site.resolutionTime=Date.now();
+ addEvent(site,{category:categoryForState(next),severity:next==="VERIFIED_OFFLINE"?"CRITICAL":next==="PRIMARY_HEALTHY"?"INFO":"WARNING",link,message:reason||STATE_LABELS[next],detail:`${previous} → ${next}`,action,previous,next});
 }
-
-function recordProbe(link){
-  if(link.health === "HEALTHY"){ link.consecPass++; link.consecFail = 0; }
-  else if(link.health === "DOWN"){ link.consecFail++; link.consecPass = 0; }
-  else { link.consecFail = 0; link.consecPass = 0; }
-}
-
-function pushLog(site, text){
-  const t = new Date().toLocaleTimeString();
-  site.log.unshift(`[${t}] ${text}`);
-  if(site.log.length > 40) site.log.pop();
-  globalIncidents.unshift({time:new Date().toLocaleString(), site:site.name, event:text});
-  if(globalIncidents.length > 200) globalIncidents.pop();
-}
-
-/* ---- the ported failover.py decision logic ---- */
+function serviceProbe(site){site.service.requests++;site.lastTelemetry=Date.now();site.heartbeat=Date.now();if(site.state==="VERIFIED_OFFLINE"){site.service.status="OFFLINE";site.service.interrupted++;}else if(site.state==="FAILOVER_PENDING"){site.service.status="PENDING";}else{site.service.status="ONLINE";site.service.lastProbe=Date.now();}}
+function verifyOffline(site,reason){if(site.state!=="BOTH_LINKS_DEGRADED")setState(site,"BOTH_LINKS_DEGRADED","Both simulated carrier profiles are degraded; blackout confirmation underway.","A + B","Continue verification");setState(site,"VERIFIED_OFFLINE",reason,"A + B","Escalation workflow displayed");site.service.status="OFFLINE";}
 function evaluateSite(site){
-  const A = site.A, B = site.B;
-  computeLinkHealth(A); computeLinkHealth(B);
-  recordProbe(A); recordProbe(B);
-
-  const aDown = A.consecFail >= CONSEC_FAIL_THRESHOLD;
-  const aOk   = A.consecPass >= CONSEC_RECOVER_THRESHOLD;
-  const bDown = B.consecFail >= CONSEC_FAIL_THRESHOLD;
-
-  const prevState = site.state;
-  site.activeSinceTicks++;
-
-  if(aDown && bDown){
-    setState(site, "OFFLINE", "Both Tower A and Tower B confirmed down.");
-    return;
-  }
-
-  if(site.active === "A"){
-    if(aDown){
-      site.active = "B"; site.activeSinceTicks = 0; site.recoveryHoldCounter = 0;
-      setState(site, "BACKUP_ACTIVE", "Tower A confirmed down (3 consecutive failed checks) — failed over to Tower B.");
-      return;
-    }
-    if(A.health !== "HEALTHY"){
-      setState(site, "PRIMARY_DEGRADED", "Tower A showing probe failures, not yet confirmed down.");
-      return;
-    }
-    setState(site, "PRIMARY_HEALTHY", null);
-    return;
-  }
-
-  // currently on B
-  if(bDown){
-    site.recoveryHoldCounter = 0;
-    setState(site, "BOTH_DEGRADED", "Tower B (active) unstable while Tower A still not trusted.");
-    return;
-  }
-  if(!aOk){
-    site.recoveryHoldCounter = 0;
-    setState(site, "BACKUP_ACTIVE", null);
-    return;
-  }
-  // Tower A looks healthy again — hold before switching back.
-  site.recoveryHoldCounter++;
-  if(site.recoveryHoldCounter >= RECOVERY_HOLD_TICKS){
-    site.active = "A"; site.activeSinceTicks = 0; site.recoveryHoldCounter = 0;
-    setState(site, "PRIMARY_HEALTHY", "Tower A stable through recovery hold — controlled switch-back to Tower A complete.");
-    return;
-  }
-  setState(site, "RECOVERY_PENDING", (prevState !== "RECOVERY_PENDING")
-      ? "Tower A healthy again — holding before switch-back to avoid flapping." : null);
+ computeLinkHealth(site.A);computeLinkHealth(site.B);recordProbe(site.A);recordProbe(site.B);const aDown=site.A.consecFail>=3,bDown=site.B.consecFail>=3,aOk=site.A.consecPass>=3,bOk=site.B.consecPass>=3;
+ if(aDown&&bDown){verifyOffline(site,"Both carrier profiles failed 3 consecutive DNS, ping, and HTTPS probe rounds.");serviceProbe(site);return;}
+ if(site.state==="VERIFIED_OFFLINE"){
+   if(aOk){site.active="A";site.recoveryHoldCounter=1;setState(site,"RECOVERY_PENDING","Primary profile is passing checks; controlled recovery hold started.","A","Hold to prevent flapping");}
+   else if(bOk){site.active="B";site.service.status="ONLINE";setState(site,"RUNNING_ON_BACKUP","Backup profile restored service after verified blackout.","B","Service probe restored");}
+   serviceProbe(site);return;
+ }
+ if(site.state==="RECOVERY_PENDING"&&site.active==="A"){
+   site.recoveryHoldCounter++;if(site.recoveryHoldCounter>=RECOVERY_HOLD_TICKS){site.recoveryHoldCounter=0;setState(site,"PRIMARY_HEALTHY","Primary passed recovery checks and the full hold; controlled restoration completed.","A","Automatic recovery completed");}serviceProbe(site);return;
+ }
+ if(site.active==="A"){
+   if(aDown){if(!bOk&&site.B.health!=="HEALTHY"){verifyOffline(site,"Primary is confirmed down and backup cannot pass its service checks.");}
+     else if(site.state!=="FAILOVER_PENDING"){site.failoverPendingTicks=1;site.service.failoverStartedAt=Date.now();setState(site,"FAILOVER_PENDING","Primary failure confirmed; testing backup carrier profile.","A","Backup verification started");}
+     else if(++site.failoverPendingTicks>=2){site.active="B";site.service.lastFailoverMs=1500;site.service.status="ONLINE";setState(site,"RUNNING_ON_BACKUP","Primary failure confirmed and service transferred to the backup profile.","A → B","Automatic failover completed");}
+   }else if(site.A.health!=="HEALTHY"){setState(site,"PRIMARY_DEGRADED",`Primary profile is degraded; failure confirmation check ${Math.min(site.A.consecFail+1,3)} of 3.`,"A","Continue health checks");}
+   else if(site.state!=="PRIMARY_HEALTHY")setState(site,"PRIMARY_HEALTHY","Primary profile is healthy.","A","Normal monitoring resumed");
+ }else{
+   if(bDown&&!aOk){verifyOffline(site,"Active backup and primary profiles are both unavailable.");}
+   else if(aOk){site.recoveryHoldCounter++;if(site.recoveryHoldCounter>=RECOVERY_HOLD_TICKS){site.active="A";site.recoveryHoldCounter=0;setState(site,"PRIMARY_HEALTHY","Primary passed recovery checks and hold; controlled switch-back completed.","B → A","Automatic recovery completed");}else setState(site,"RECOVERY_PENDING","Primary profile recovered; holding on backup to prevent flapping.","A","Recovery hold");}
+   else{site.recoveryHoldCounter=0;if(site.state!=="RUNNING_ON_BACKUP")setState(site,"RUNNING_ON_BACKUP","Backup profile is carrying the simulated critical service.","B","Continue backup operation");}
+ }
+ serviceProbe(site);
 }
+function tick(){sim.sites.forEach(evaluateSite);renderAll();}
+function startClock(){clearInterval(tickTimer);tickTimer=setInterval(tick,sim.alertMode?Math.min(sim.tickMs,250):sim.tickMs);}
+function onCongestionInput(letter){const site=currentSite(),link=site[letter],val=+document.getElementById(`tower${letter}-congestion`).value;link.congestion=val;link.forcedOutage=false;if(val>=80&&link.cause===FAILURE_CAUSES[0])link.cause=FAILURE_CAUSES[1];addEvent(site,{category:"Degradation",severity:val>=80?"WARNING":"INFO",link:letter,message:`${carrierLabel(letter)} set to ${val}% simulated congestion.`,detail:`Health checks remain subject to the 3-check threshold.`,action:"Profile updated"});renderAll();}
+function onCauseChange(letter){const site=currentSite(),cause=document.getElementById(`tower${letter}-cause`).value;site[letter].cause=cause;if(cause==="Both carriers unavailable"){["A","B"].forEach(x=>{site[x].cause=cause;site[x].forcedOutage=true;site[x].congestion=100;});}else if(cause!==FAILURE_CAUSES[0]){site[letter].forcedOutage=cause!==FAILURE_CAUSES[1];site[letter].congestion=cause===FAILURE_CAUSES[1]?85:100;}addEvent(site,{category:"Degradation",severity:"WARNING",link:letter,message:`Simulated cause selected: ${cause}.`,detail:"No live carrier condition is represented.",action:"Failure profile updated"});renderAll();}
+function forceOutage(letter){const site=currentSite();site[letter].forcedOutage=true;site[letter].congestion=100;if(site[letter].cause===FAILURE_CAUSES[0])site[letter].cause="Tower unavailable";addEvent(site,{category:"Degradation",severity:"WARNING",link:letter,message:`Total simulated outage triggered on ${carrierLabel(letter)}.`,detail:`Cause: ${site[letter].cause}.`,action:"Manual simulation trigger"});renderAll();}
+function clearFault(letter){const site=currentSite();Object.assign(site[letter],freshLink());addEvent(site,{category:"Recovery",severity:"INFO",link:letter,message:`${carrierLabel(letter)} restored to its baseline profile.`,detail:"Recovery still requires consecutive passing checks.",action:"Restore requested"});renderAll();}
+function clearAllFaults(){clearFault("A");clearFault("B");}
+function cancelDemo(){clearTimeout(demo.timer);Object.assign(demo,{running:false,paused:false,index:0,timer:null,siteId:null});}
+function resetSite(){cancelDemo();const i=sim.sites.findIndex(s=>s.id===sim.currentSiteId);sim.sites[i]=freshSite(SITE_NAMES[i]);addEvent(sim.sites[i],{category:"Recovery",severity:"INFO",message:"Selected site reset to a known healthy simulated state.",action:"Site reset"});renderAll();}
+function resetAllSites(){cancelDemo();sim.sites=SITE_NAMES.map(freshSite);sim.currentSiteId="s1";sim.alertMode=false;sim.scenario=null;sim.scenarioStart=null;sim.scenarioEnd=null;document.getElementById("lguOutcomePanel").hidden=true;addEvent(null,{category:"Recovery",severity:"INFO",message:"All sites reset to routine readiness state.",action:"LGU-wide reset",previous:"MIXED",next:"PRIMARY_HEALTHY"});startClock();renderAll();}
 
-function setState(site, newState, reasonIfChanged){
-  if(newState !== site.state){
-    site.state = newState;
-    if(reasonIfChanged){
-      site.lastTransition = reasonIfChanged;
-      pushLog(site, `STATE → ${newState}: ${reasonIfChanged}`);
-    }
-  }
+function activateAlertMode(){if(sim.alertMode)return;sim.alertMode=true;sim.scenario="Simulated weather-advisory readiness and connectivity continuity";sim.scenarioStart=Date.now();addEvent(null,{category:"Weather readiness",severity:"WARNING",message:"SIMULATED WEATHER READINESS EVENT: Alert Mode activated. This is not a live PAGASA advisory.",detail:"Health-check frequency increased; profiles, heartbeat, AC/UPS and readiness status verified.",action:"Alert Mode activated"});sim.sites.forEach(site=>addEvent(site,{category:"Weather readiness",severity:"INFO",link:"A + B",message:"Pre-event readiness verification completed.",detail:`Both carrier profiles checked; heartbeat received; AC ${site.acInput}; UPS ${site.upsCharge}%; focal-person notification simulated.`,action:"Readiness summary generated"}));startClock();renderAll();}
+function clearAlertMode(){if(!sim.alertMode)return;sim.alertMode=false;addEvent(null,{category:"Weather readiness",severity:"INFO",message:"Simulated Alert Mode cleared; routine readiness monitoring resumed.",action:"Alert Mode cleared"});startClock();renderAll();}
+function configureScenarioSite(site,index){
+ if(index===0){site.A.cause="Tower unavailable";site.A.forcedOutage=true;site.A.congestion=100;}
+ else if(index===1){site.A.cause=site.B.cause="Both carriers unavailable";site.A.forcedOutage=site.B.forcedOutage=true;site.A.congestion=site.B.congestion=100;site.acInput="Interrupted";site.upsCharge=68;}
+ else if(index===4){site.A.cause="Weak or unstable radio link";site.A.congestion=55;}
+ else{site.A.cause="Demand surge / network congestion";site.A.congestion=20+index*2;}
+ addEvent(site,{category:"Degradation",severity:index===1?"CRITICAL":"WARNING",link:index===1?"A + B":"A",message:`Weather-impact profile applied at ${site.brgy}.`,detail:`Cause: ${site.A.cause}; primary ${site.A.congestion}%${index===1?`; backup ${site.B.congestion}%`:""}.`,action:"Scenario profile applied"});
 }
+function simulateTyphoonAllSites(){if(!sim.alertMode)activateAlertMode();sim.scenario="LGU-wide simulated severe-weather continuity exercise";sim.scenarioStart=sim.scenarioStart||Date.now();sim.sites.forEach(configureScenarioSite);for(let i=0;i<5;i++)sim.sites.forEach(evaluateSite);sim.scenarioEnd=Date.now();addEvent(null,{category:"Weather readiness",severity:"WARNING",message:`LGU-wide scenario completed across ${sim.sites.length} simulated sites.`,action:"Outcome summary generated"});document.getElementById("lguOutcomePanel").hidden=false;renderAll();}
 
-/* ---- tick loop ---- */
-function tick(){
-  sites.forEach(evaluateSite);
-  renderAll();
-}
+const demoSteps=[
+ {label:"Known healthy state and successful service probes",run:s=>{addEvent(s,{category:"Weather readiness",message:"Scripted demo started with both simulated profiles healthy.",action:"Baseline verified"});for(let i=0;i<3;i++)serviceProbe(s);}},
+ {label:"Activate simulated Weather Alert Mode",run:()=>activateAlertMode()},
+ {label:"Increase primary-carrier degradation",run:s=>{s.A.cause="Demand surge / network congestion";s.A.congestion=95;addEvent(s,{category:"Degradation",severity:"WARNING",link:"A",message:"Primary profile degraded to 95% simulated congestion.",action:"Failure scenario injected"});}},
+ {label:"Primary failed check 1 of 3",run:s=>evaluateSite(s)},
+ {label:"Primary failed check 2 of 3",run:s=>evaluateSite(s)},
+ {label:"Primary failed check 3 of 3; enter FAILOVER_PENDING",run:s=>evaluateSite(s)},
+ {label:"Test backup carrier profile",run:s=>evaluateSite(s)},
+ {label:"Transfer service to RUNNING_ON_BACKUP",run:s=>evaluateSite(s)},
+ {label:"Show service-continuity result",run:s=>{addEvent(s,{category:"Failover",message:"Service-continuity result generated from current state and event history.",action:"Result displayed"});}},
+ {label:"Incident automatically recorded",run:s=>addEvent(s,{category:"Failover",message:"Failover incident is available in the consolidated log.",action:"Incident recorded"})},
+ {label:"Display LGU-wide outcome summary",run:()=>{document.getElementById("lguOutcomePanel").hidden=false;}},
+ {label:"Demo complete",run:s=>addEvent(s,{category:"Failover",message:"Scripted demonstration complete.",action:"Demo completed"})}
+];
+function scheduleDemo(){clearTimeout(demo.timer);if(!demo.running||demo.paused)return;if(demo.index>=demoSteps.length){demo.running=false;renderAll();return;}demo.timer=setTimeout(runDemoStage,Math.max(900,sim.tickMs*2));}
+function runDemoStage(){if(!demo.running||demo.paused)return;const site=getSite(demo.siteId);const step=demoSteps[demo.index++];step.run(site);renderAll();scheduleDemo();}
+function runScriptedDemo(){if(demo.running)return;resetSite();demo.running=true;demo.siteId=sim.currentSiteId;demo.index=0;runDemoStage();}
+function pauseDemo(){if(!demo.running)return;demo.paused=true;clearTimeout(demo.timer);renderAll();}
+function resumeDemo(){if(!demo.running||!demo.paused)return;demo.paused=false;scheduleDemo();renderAll();}
+function restartDemo(){cancelDemo();runScriptedDemo();}
+function skipDemoStage(){if(!demo.running){runScriptedDemo();return;}clearTimeout(demo.timer);runDemoStage();}
+function operatorAction(kind,message){const site=currentSite();if(site.state!=="VERIFIED_OFFLINE")return;if(kind==="ACKNOWLEDGED")site.acknowledged=true;else if(!site.recommendations.includes(kind))site.recommendations.push(kind);addEvent(site,{category:"Operator action",severity:"INFO",link:"SITE",message,detail:"Proposed workflow record only; nothing was dispatched.",action:kind,previous:site.state,next:site.state});renderAll();}
 
-function startClock(){
-  if(tickTimer) clearInterval(tickTimer);
-  tickTimer = setInterval(tick, tickIntervalMs);
-}
+function duration(ms){const n=Math.max(0,Math.floor(ms/1000)),h=String(Math.floor(n/3600)).padStart(2,"0"),m=String(Math.floor(n%3600/60)).padStart(2,"0"),s=String(n%60).padStart(2,"0");return `${h}:${m}:${s}`;}
+function renderAll(){renderTowers();renderSiteState();renderServiceMonitor();renderOverviewTable();renderStatsRow();renderReadiness();renderEscalation();renderOutcome();renderSiteLog();renderIncidentTable();renderSiteMap();renderDemo();}
+function renderTowers(){const site=currentSite();["A","B"].forEach(letter=>{const link=site[letter];document.getElementById(`tower${letter}-congestion`).value=link.congestion;document.getElementById(`tower${letter}-congestion-val`).textContent=link.congestion;document.getElementById(`tower${letter}-cause`).value=link.cause;document.getElementById(`tower${letter}-status`).textContent=link.forcedOutage?"DOWN (SIMULATED)":link.health;document.getElementById(`tower${letter}-score`).textContent=link.score;document.getElementById(`tower${letter}-latency`).textContent=link.latency;document.getElementById(`tower${letter}-loss`).textContent=link.loss;document.getElementById(`tower${letter}-fail-counter`).textContent=`${Math.min(link.consecFail,3)} of 3 failed checks`;document.getElementById(`tower${letter}-pass-counter`).textContent=`${link.consecPass} consecutive passing checks`;});}
+function renderSiteState(){const site=currentSite(),b=document.getElementById("siteStateBadge");b.textContent=STATE_LABELS[site.state];b.className="badge st-"+site.state;document.getElementById("siteActiveLink").textContent=carrierLabel(site.active);document.getElementById("siteLastTransition").textContent=site.lastTransition;}
+function renderServiceMonitor(){const site=currentSite(),svc=site.service,b=document.getElementById("serviceBanner");const message=svc.status==="ONLINE"?`${svc.name}: ONLINE${site.state==="RUNNING_ON_BACKUP"?" — SERVICE REMAINED ONLINE":""}`:svc.status==="PENDING"?"FAILOVER IN PROGRESS — critical service probe: PENDING":`${svc.name}: OFFLINE — verified simulated blackout`;b.textContent=message;b.className=`service-banner service-${svc.status.toLowerCase()}`;document.getElementById("serviceActiveLink").textContent=carrierLabel(site.active);document.getElementById("serviceLastProbe").textContent=new Date(svc.lastProbe).toLocaleTimeString();document.getElementById("serviceDuration").textContent=duration(Date.now()-svc.startedAt);document.getElementById("serviceRequests").textContent=svc.requests;document.getElementById("serviceInterrupted").textContent=svc.interrupted;document.getElementById("serviceFailover").textContent=svc.lastFailoverMs?`${(svc.lastFailoverMs/1000).toFixed(1)} seconds (simulated)`:"Not performed";const card=document.getElementById("failoverResult");card.hidden=!(site.state==="RUNNING_ON_BACKUP"&&svc.lastFailoverMs);if(!card.hidden)card.innerHTML=`<b>SIMULATION RESULT</b><div class="continuity-grid"><div>Primary failure confirmed: Yes</div><div>Threshold: 3 failed checks</div><div>Backup available: Yes</div><div>Automatic failover: Yes</div><div>Switching time: ${(svc.lastFailoverMs/1000).toFixed(1)} seconds</div><div>Service: ${svc.status}</div><div>Interrupted requests: ${svc.interrupted}</div><div>Manual intervention: No</div></div><div class="btnrow"><button class="gbtn" onclick="document.getElementById('failoverResult').hidden=true">DISMISS</button><button class="gbtn" onclick="restartDemo()">REPLAY DEMONSTRATION</button></div>`;}
+function renderOverviewTable(){const table=document.getElementById("overviewTable");table.querySelectorAll("tr.data-row").forEach(r=>r.remove());sim.sites.forEach(site=>{const active=site[site.active],tr=document.createElement("tr");tr.className="data-row";tr.innerHTML=`<td>${esc(site.name)}</td><td>${esc(site.brgy)}</td><td>${esc(site.type)}</td><td>${esc(carrierLabel(site.active))}</td><td><span class="badge st-${site.state}">${STATE_LABELS[site.state]}</span></td><td>${active.score}/100</td><td>${site.upsCharge}%<br><small>Est. ${Math.floor(site.upsCharge*1.2)} min*</small></td><td>AC: ${site.acInput}<br>Heartbeat: ${new Date(site.heartbeat).toLocaleTimeString()}</td>`;table.appendChild(tr);});if(!table.parentElement.querySelector(".runtime-formula-note")){const note=document.createElement("div");note.className="hint runtime-formula-note";note.textContent="* Simulated UPS runtime formula for this concept display: charge percentage × 1.2 minutes; not a hardware-tested estimate.";table.parentElement.appendChild(note);}}
+function counts(){return{healthy:sim.sites.filter(s=>s.state==="PRIMARY_HEALTHY").length,degraded:sim.sites.filter(s=>["PRIMARY_DEGRADED","FAILOVER_PENDING","BOTH_LINKS_DEGRADED","RECOVERY_PENDING"].includes(s.state)).length,backup:sim.sites.filter(s=>s.state==="RUNNING_ON_BACKUP").length,offline:sim.sites.filter(s=>s.state==="VERIFIED_OFFLINE").length};}
+function renderStatsRow(){const c=counts();document.getElementById("statTotalSites").textContent=sim.sites.length;document.getElementById("statHealthy").textContent=c.healthy;document.getElementById("statDegraded").textContent=c.degraded;document.getElementById("statBackup").textContent=c.backup;document.getElementById("statOffline").textContent=c.offline;}
+function renderReadiness(){const panel=document.getElementById("alertModePanel");panel.classList.toggle("active",sim.alertMode);document.getElementById("alertModeBanner").innerHTML=sim.alertMode?"<b>SIMULATED WEATHER READINESS EVENT</b><br>Alert Mode active. This is not a live PAGASA advisory.":"<b>STATUS:</b> Routine readiness monitoring";document.getElementById("readinessSummary").innerHTML=`<div>Health-check interval: ${sim.alertMode?Math.min(sim.tickMs,250):sim.tickMs} ms (simulated)</div><div>Carrier profiles verified: ${sim.sites.length*2}</div><div>Device heartbeats: ${sim.sites.filter(s=>Date.now()-s.heartbeat<10000).length}/${sim.sites.length}</div><div>AC available: ${sim.sites.filter(s=>s.acInput==="Available").length}/${sim.sites.length}</div><div>Already degraded: ${counts().degraded}</div><div>Focal-person notice: ${sim.alertMode?"Recorded (simulated)":"Not triggered"}</div>`;}
+function renderEscalation(){const site=currentSite(),p=document.getElementById("escalationPanel");p.hidden=site.state!=="VERIFIED_OFFLINE";if(p.hidden)return;document.getElementById("escalationStatus").innerHTML=`<div>Primary carrier: Unavailable</div><div>Backup carrier: Unavailable</div><div>UPS charge: ${site.upsCharge}%</div><div>AC input: ${site.acInput}</div><div>Device heartbeat: ${Math.floor((Date.now()-site.heartbeat)/1000)} seconds ago</div><div>Last service contact: ${new Date(site.service.lastProbe).toLocaleTimeString()}</div><div>Incident duration: ${duration(Date.now()-site.incidentStartedAt)}</div><div>Acknowledgement: ${site.acknowledged?"Acknowledged (simulated)":"Awaiting simulated operator"}</div><div>Recommendations: ${site.recommendations.join(", ")||"None recorded"}</div>`;}
+function renderOutcome(){const p=document.getElementById("lguOutcomePanel");if(p.hidden)return;const c=counts(),connected=sim.sites.length-c.offline;document.getElementById("lguOutcome").innerHTML=`<div class="continuity-grid"><div>Sites monitored: <b>${sim.sites.length}</b></div><div>Remaining on primary: <b>${c.healthy+c.degraded}</b></div><div>Transferred to backup: <b>${c.backup}</b></div><div>Verified offline: <b>${c.offline}</b></div><div>Requiring escalation: <b>${c.offline}</b></div><div>Critical sites still connected: <b>${connected} of ${sim.sites.length}</b></div></div><div class="hint">Counts are derived from the current central simulation state and reconcile to ${sim.sites.length} monitored sites.</div>`;}
+function renderSiteLog(){const s=currentSite(),box=document.getElementById("siteLogBox");box.innerHTML=s.log.length?s.log.map(l=>`<div class="logline">${esc(l)}</div>`).join(""):"<div class='logline'>(no simulated events yet for this site)</div>";}
+function renderIncidentTable(){const table=document.getElementById("incidentTable");table.querySelectorAll("tr.data-row").forEach(r=>r.remove());const list=sim.incidents.filter(e=>sim.incidentFilter==="All events"||e.category===sim.incidentFilter);document.getElementById("incidentEmptyHint").style.display=list.length?"none":"block";list.slice(0,100).forEach(ev=>{const tr=document.createElement("tr");tr.className="data-row";tr.innerHTML=`<td>${esc(ev.time)}</td><td>${esc(ev.site)}</td><td><b>${esc(ev.category)}</b><br>${esc(ev.severity)}<br>${esc(ev.link)}</td><td><div class="operator-message">${esc(ev.message)}</div><details class="technical-detail"><summary>Technical detail</summary>${esc(ev.detail||"No additional detail.")}<br>Previous: ${esc(ev.previous)}<br>New: ${esc(ev.next)}<br>Action: ${esc(ev.action)}<br>Status: ${esc(ev.ack)}</details></td>`;table.appendChild(tr);});}
+function renderSiteMap(){const map=document.getElementById("siteMap");map.querySelectorAll(".map-node").forEach(n=>n.remove());sim.sites.forEach(site=>{const c=NODE_COORDS[site.id],n=document.createElement("button");n.type="button";n.className="map-node st-"+site.state;n.style.left=c.x+"%";n.style.top=c.y+"%";n.title=`${site.name} — ${STATE_LABELS[site.state]} — click for overview`;n.innerHTML=`<div class="map-node-name">${site.brgy}</div><div class="map-node-state">${STATE_LABELS[site.state]}</div>`;n.onclick=()=>goToSiteOnOverview(site.id);map.appendChild(n);});refineNodeOverlapsDOM(map);const legend=document.getElementById("mapLegend");if(!legend.childElementCount)legend.innerHTML=MAP_LEGEND.map(i=>`<span><span class="swatch ${i.cls}"></span>${i.label}</span>`).join("");}
+function renderDemo(){const box=document.getElementById("demoProgress");box.textContent=!demo.running?(demo.index>=demoSteps.length?"Scripted demo complete.":"Scripted demo idle."):`${demo.paused?"PAUSED — ":""}Stage ${Math.min(demo.index+1,demoSteps.length)} of ${demoSteps.length}: ${demoSteps[Math.min(demo.index,demoSteps.length-1)].label}`;}
 
-/* ---- UI wiring ---- */
-function onCongestionInput(letter){
-  const site = currentSite();
-  const link = site[letter];
-  const val = parseInt(document.getElementById(`tower${letter}-congestion`).value, 10);
-  link.congestion = val;
-  link.forcedOutage = false;
-  document.getElementById(`tower${letter}-congestion-val`).textContent = val;
-  if(val >= 80) pushLog(site, `Tower ${letter} congestion raised to ${val}% (severe — probes will begin failing).`);
-  renderAll();
-}
+function reportData(){const c=counts(),events=sim.incidents,failovers=sim.sites.filter(s=>s.service.lastFailoverMs),offline=sim.sites.filter(s=>s.state==="VERIFIED_OFFLINE"),unresolved=sim.sites.filter(s=>s.state!=="PRIMARY_HEALTHY"),recovered=events.filter(e=>e.category==="Recovery");return{c,events,failovers,offline,unresolved,recovered};}
+function buildReportText(){const d=reportData();return [`CELLSENTRY PH AFTER-ACTION REPORT — SIMULATED`,`Concept-stage output; not field-tested evidence and not connected to PAGASA, DICT, an LGU, a carrier, or a live device.`,`Scenario: ${sim.scenario||"Routine readiness / manual site simulation"}`,`Start: ${sim.scenarioStart?new Date(sim.scenarioStart).toLocaleString():"Not recorded"}`,`End: ${sim.scenarioEnd?new Date(sim.scenarioEnd).toLocaleString():nowText()}`,`Sites monitored: ${sim.sites.length}`,`Initial readiness: ${sim.alertMode?"Weather Alert Mode actions recorded":"Routine monitoring"}`,`Remaining on primary: ${d.c.healthy+d.c.degraded}`,`Transferred to backup: ${d.c.backup}`,`Failover confirmation threshold: ${CONSEC_FAIL_THRESHOLD} consecutive failed checks`,`Failover durations: ${d.failovers.map(s=>s.name+" — "+(s.service.lastFailoverMs/1000).toFixed(1)+" seconds simulated").join("; ")||"None"}`,`Service continuity: ${sim.sites.filter(s=>s.service.status==="ONLINE").length} of ${sim.sites.length} services currently online; ${sim.sites.reduce((n,s)=>n+s.service.interrupted,0)} interrupted simulated requests`,`Verified-offline sites: ${d.offline.map(s=>s.name).join("; ")||"None"}`,`Escalation recommendations: ${d.offline.flatMap(s=>s.recommendations.map(r=>s.name+" — "+r)).join("; ")||"None recorded"}`,`Recovery events: ${d.recovered.length}`,`Unresolved incidents: ${d.unresolved.map(s=>s.name+" ("+STATE_LABELS[s.state]+")").join("; ")||"None"}`,`Weather Alert Mode actions: ${d.events.filter(e=>e.category==="Weather readiness").length} records`,`Generated: ${nowText()}`].join("\n");}
+function generateReport(){latestReportText=buildReportText();const rows=latestReportText.split("\n").map(line=>{const i=line.indexOf(":");return i>0?`<tr><th style="width:210px">${esc(line.slice(0,i))}</th><td>${esc(line.slice(i+1).trim())}</td></tr>`:`<tr><td colspan="2"><b>${esc(line)}</b></td></tr>`;}).join("");document.getElementById("reportOutput").innerHTML=`<div class="print-report"><h2>SIMULATED AFTER-ACTION REPORT</h2><div class="sub">Generated entirely from current in-browser simulation state</div><table class="oldtable">${rows}</table></div>`;}
+function downloadReport(){latestReportText=buildReportText();const blob=new Blob([latestReportText],{type:"text/plain"}),a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download="CellSentry-PH-simulated-after-action-report.txt";a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);}
+function goToSiteOnOverview(id){sim.currentSiteId=id;document.getElementById("siteSelect").value=id;document.querySelectorAll(".navtabs button").forEach(b=>b.classList.remove("active"));document.querySelector('[data-page="overview"]').classList.add("active");showPage("overview");renderAll();}
+function showPage(id){document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));document.getElementById("page-"+id).classList.add("active");}
+function enterDevOptions(){document.querySelectorAll(".navtabs button").forEach(b=>b.classList.remove("active"));showPage("simulator");}function exitDevOptions(){document.querySelector('[data-page="home"]').classList.add("active");showPage("home");}
+function toggleNotice(){const box=document.getElementById("noticeBox"),btn=document.getElementById("noticeToggle"),collapsed=box.classList.toggle("collapsed");btn.innerHTML=collapsed?"&#43;":"&#8722;";btn.title=collapsed?"Expand notice":"Minimize notice";btn.setAttribute("aria-label",btn.title);}
 
-function forceOutage(letter){
-  const site = currentSite();
-  site[letter].forcedOutage = true;
-  pushLog(site, `Manual trigger: TOTAL OUTAGE forced on Tower ${letter}.`);
-  renderAll();
-}
-
-function clearFault(letter){
-  const site = currentSite();
-  site[letter].forcedOutage = false;
-  site[letter].congestion = 0;
-  document.getElementById(`tower${letter}-congestion`).value = 0;
-  document.getElementById(`tower${letter}-congestion-val`).textContent = 0;
-  pushLog(site, `Tower ${letter} manually restored to baseline (0% congestion).`);
-  renderAll();
-}
-
-function clearAllFaults(){ clearFault("A"); clearFault("B"); }
-
-function resetSite(){
-  const idx = sites.findIndex(s=>s.id===currentSiteId);
-  sites[idx] = freshSite(SITE_NAMES[idx]);
-  document.getElementById("towerA-congestion").value = 0;
-  document.getElementById("towerB-congestion").value = 0;
-  renderAll();
-}
-
-/* ---- LGU-wide typhoon event: instant, button-triggered, ALL sites at once ----
-   No setTimeout/setInterval sequencing here on purpose — the whole event
-   resolves the moment the button is clicked, unlike the scripted demo above. */
-function simulateTyphoonAllSites(){
-  const now = new Date().toLocaleString();
-  globalIncidents.unshift({
-    time: now,
-    site: "ALL SITES",
-    event: `[SIMULATED WEATHER EVENT] Typhoon track simulated passing directly over ${SIMULATED_LGU} — LGU-wide simulated tower congestion/outages triggered across all ${sites.length} monitored sites.`
-  });
-
-  sites.forEach(site=>{
-    // Randomized "distance from eye" per site so the LGU-wide hit isn't uniform.
-    const severity = Math.random();
-    let congA, congB, forceA = false, forceB = false;
-
-    if(severity > 0.7){
-      // Simulated direct hit: primary knocked fully out, backup badly strained.
-      forceA = true; congA = 100;
-      forceB = Math.random() > 0.5;
-      congB = forceB ? 100 : (55 + Math.floor(Math.random()*35));
-    } else if(severity > 0.35){
-      // Simulated near-track: heavy congestion on both links.
-      congA = 55 + Math.floor(Math.random()*40);
-      congB = 20 + Math.floor(Math.random()*40);
-    } else {
-      // Simulated outer-band: elevated but sub-critical congestion.
-      congA = 20 + Math.floor(Math.random()*30);
-      congB = 10 + Math.floor(Math.random()*20);
-    }
-
-    site.A.congestion = congA; site.A.forcedOutage = forceA;
-    site.B.congestion = congB; site.B.forcedOutage = forceB;
-    site.battery = Math.max(5, site.battery - (5 + Math.floor(Math.random()*15)));
-
-    pushLog(site, `[SIMULATED TYPHOON] Simulated high wind/rain impact at ${site.brgy} — Tower A congestion set to ${congA}%${forceA ? " (forced outage)" : ""}, Tower B congestion set to ${congB}%${forceB ? " (forced outage)" : ""}.`);
-
-    // Fast-forward the state machine's consecutive-check counters immediately
-    // (same evaluateSite() logic the normal tick loop uses) so failover/offline
-    // states resolve right now instead of waiting for real ticks.
-    for(let i=0; i<CONSEC_FAIL_THRESHOLD+1; i++){ evaluateSite(site); }
-  });
-
-  // Keep the on-screen sliders for whichever site is currently selected in sync.
-  document.getElementById("towerA-congestion").value = currentSite().A.congestion;
-  document.getElementById("towerB-congestion").value = currentSite().B.congestion;
-  renderAll();
-}
-
-function resetAllSites(){
-  sites = SITE_NAMES.map(freshSite);
-  currentSiteId = sites[0].id;
-  document.getElementById("siteSelect").value = currentSiteId;
-  document.getElementById("towerA-congestion").value = 0;
-  document.getElementById("towerB-congestion").value = 0;
-  globalIncidents.unshift({
-    time: new Date().toLocaleString(),
-    site: "ALL SITES",
-    event: "[SIMULATED] Typhoon event cleared — all sites manually reset to baseline (PRIMARY_HEALTHY)."
-  });
-  renderAll();
-}
-
-let demoRunning = false;
-function runScriptedDemo(){
-  if(demoRunning) return;
-  demoRunning = true;
-  resetSite();
-  const site = currentSite();
-  pushLog(site, "SCRIPTED DEMO STARTED: both links healthy.");
-  let step = 0;
-  const steps = [
-    ()=>{ document.getElementById("towerA-congestion").value = 95; onCongestionInput("A"); pushLog(site,"Demo: Tower A (primary) congestion driven to 95% to simulate tower overload."); },
-    ()=>{ pushLog(site,"Demo: waiting for 3 consecutive failed checks on Tower A..."); },
-    ()=>{ pushLog(site,"Demo: expect BACKUP_ACTIVE shortly if not already shown above."); },
-    ()=>{ document.getElementById("towerA-congestion").value = 0; onCongestionInput("A"); pushLog(site,"Demo: Tower A congestion cleared — recovery hold should now begin."); },
-    ()=>{ pushLog(site,"Demo: holding on Tower B until Tower A passes 3 consecutive checks and the recovery hold completes."); },
-    ()=>{ pushLog(site,"SCRIPTED DEMO COMPLETE. Site should return to PRIMARY_HEALTHY shortly."); demoRunning=false; }
-  ];
-  const stepDelay = Math.max(tickIntervalMs*3, 1200);
-  function runNext(){
-    if(step < steps.length){ steps[step](); step++; setTimeout(runNext, stepDelay); }
-  }
-  runNext();
-}
-
-/* ---- rendering ---- */
-function renderAll(){
-  renderTowers();
-  renderSiteState();
-  renderOverviewTable();
-  renderStatsRow();
-  renderSiteLog();
-  renderIncidentTable();
-  renderSiteMap();
-}
-
-function renderSiteMap(){
-  const map = document.getElementById("siteMap");
-  if(!map) return;
-  map.querySelectorAll(".map-node").forEach(n=>n.remove());
-  sites.forEach(site=>{
-    const coord = NODE_COORDS[site.id] || {x:50, y:50};
-    const node = document.createElement("div");
-    node.className = "map-node st-" + site.state;
-    node.style.left = coord.x + "%";
-    node.style.top = coord.y + "%";
-    const real = REAL_COORDS[site.id];
-    const coordLabel = real ? ` — approx. ${real.lat.toFixed(4)}, ${real.lng.toFixed(4)}` : "";
-    node.title = `${site.name} (${site.brgy})${coordLabel} — ${site.state.replace(/_/g," ")} — click to view on LGU Site Overview`;
-    node.innerHTML = `<div class="map-node-name">${site.brgy}</div><div class="map-node-state">${site.state.replace(/_/g," ")}</div>`;
-    node.addEventListener("click", ()=>goToSiteOnOverview(site.id));
-    map.appendChild(node);
-  });
-  renderMapLegend();
-}
-
-function renderMapLegend(){
-  const legend = document.getElementById("mapLegend");
-  if(!legend || legend.childElementCount) return; // static, build once
-  legend.innerHTML = MAP_LEGEND.map(item =>
-    `<span><span class="swatch ${item.cls}"></span>${item.label}</span>`
-  ).join("");
-}
-
-function goToSiteOnOverview(siteId){
-  currentSiteId = siteId;
-  const select = document.getElementById("siteSelect");
-  if(select) select.value = siteId;
-  document.querySelectorAll(".navtabs button").forEach(b=>b.classList.remove("active"));
-  const overviewBtn = document.querySelector('.navtabs button[data-page="overview"]');
-  if(overviewBtn) overviewBtn.classList.add("active");
-  showPage("overview");
-  renderAll();
-}
-
-function renderTowers(){
-  const site = currentSite();
-  ["A","B"].forEach(letter=>{
-    const link = site[letter];
-    document.getElementById(`tower${letter}-congestion`).value = link.congestion;
-    document.getElementById(`tower${letter}-congestion-val`).textContent = link.congestion;
-    document.getElementById(`tower${letter}-status`).textContent = link.forcedOutage ? "DOWN (forced)" : link.health;
-    document.getElementById(`tower${letter}-score`).textContent = link.score;
-    document.getElementById(`tower${letter}-latency`).textContent = link.latency;
-    document.getElementById(`tower${letter}-loss`).textContent = link.loss;
-    document.getElementById(`tower${letter}-counters`).textContent = `${link.consecFail} / ${link.consecPass}`;
-  });
-}
-
-function renderSiteState(){
-  const site = currentSite();
-  const badge = document.getElementById("siteStateBadge");
-  badge.textContent = site.state;
-  badge.className = "badge st-" + site.state;
-  document.getElementById("siteActiveLink").textContent =
-    site.active === "A" ? "Tower A — Globe (Primary)" : "Tower B — Smart (Backup)";
-  document.getElementById("siteLastTransition").textContent = site.lastTransition;
-}
-
-function renderOverviewTable(){
-  const table = document.getElementById("overviewTable");
-  table.querySelectorAll("tr.data-row").forEach(r=>r.remove());
-  sites.forEach(site=>{
-    const tr = document.createElement("tr");
-    tr.className = "data-row";
-    tr.innerHTML = `
-      <td>${site.name}</td>
-      <td>${site.brgy}</td>
-      <td>${site.type}</td>
-      <td>${site.active==="A" ? "Tower A (Globe)" : "Tower B (Smart)"}</td>
-      <td><span class="badge st-${site.state}">${site.state}</span></td>
-      <td>${site.active==="A" ? site.A.score : site.B.score}/100</td>
-      <td>${site.battery}%</td>`;
-    table.appendChild(tr);
-  });
-}
-
-function renderStatsRow(){
-  document.getElementById("statTotalSites").textContent = sites.length;
-  document.getElementById("statHealthy").textContent = sites.filter(s=>s.state==="PRIMARY_HEALTHY").length;
-  document.getElementById("statBackup").textContent = sites.filter(s=>["BACKUP_ACTIVE","RECOVERY_PENDING","BOTH_DEGRADED"].includes(s.state)).length;
-  document.getElementById("statOffline").textContent = sites.filter(s=>s.state==="OFFLINE").length;
-}
-
-function renderSiteLog(){
-  const box = document.getElementById("siteLogBox");
-  const site = currentSite();
-  box.innerHTML = site.log.length
-    ? site.log.map(l=>`<div class="logline">${l}</div>`).join("")
-    : `<div class="logline">(no simulated events yet for this site)</div>`;
-}
-
-function renderIncidentTable(){
-  const table = document.getElementById("incidentTable");
-  table.querySelectorAll("tr.data-row").forEach(r=>r.remove());
-  document.getElementById("incidentEmptyHint").style.display = globalIncidents.length ? "none" : "block";
-  globalIncidents.slice(0,80).forEach(ev=>{
-    const tr = document.createElement("tr");
-    tr.className = "data-row";
-    tr.innerHTML = `<td>${ev.time}</td><td>${ev.site}</td><td colspan="2">${ev.event}</td>`;
-    table.appendChild(tr);
-  });
-}
-
-function generateReport(){
-  const site = currentSite();
-  const out = document.getElementById("reportOutput");
-  const now = new Date().toLocaleString();
-  const recentEvents = site.log.slice(0,10);
-  out.innerHTML = `
-    <div class="print-report">
-      <h2>SIMULATED CONNECTIVITY INCIDENT REPORT</h2>
-      <div class="sub">CellSentry PH Monitoring Portal &mdash; Simulation Module &mdash; Generated ${now}</div>
-      <table class="oldtable">
-        <tr><th style="width:180px;">Site</th><td>${site.name} (${site.brgy})</td></tr>
-        <tr><th>Site type</th><td>${site.type}</td></tr>
-        <tr><th>Current state</th><td><span class="badge st-${site.state}">${site.state}</span></td></tr>
-        <tr><th>Active link</th><td>${site.active==="A" ? "Tower A — Globe (Primary)" : "Tower B — Smart (Backup)"}</td></tr>
-        <tr><th>Tower A health score</th><td>${site.A.score}/100 (${site.A.health})</td></tr>
-        <tr><th>Tower B health score</th><td>${site.B.score}/100 (${site.B.health})</td></tr>
-      </table>
-      <p><b>Recent simulated events:</b></p>
-      ${recentEvents.length ? recentEvents.map(l=>`<div class="logline">${l}</div>`).join("") : "<i>No events recorded for this session.</i>"}
-      <p style="margin-top:10px;font-size:10px;color:#8a0000;"><b>This report is generated from simulated, in-browser data only and is not evidence of any real network event.</b></p>
-    </div>`;
-}
-
-/* ---- static wiring ---- */
-document.getElementById("siteSelect").innerHTML = sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
-document.getElementById("siteSelect").addEventListener("change", e=>{ currentSiteId = e.target.value; renderAll(); });
-document.getElementById("speedSelect").addEventListener("change", e=>{
-  tickIntervalMs = parseInt(e.target.value,10); startClock();
-});
-
-function showPage(pageId){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById("page-"+pageId).classList.add("active");
-}
-
-document.querySelectorAll(".navtabs button").forEach(btn=>{
-  btn.addEventListener("click", ()=>{
-    document.querySelectorAll(".navtabs button").forEach(b=>b.classList.remove("active"));
-    btn.classList.add("active");
-    showPage(btn.dataset.page);
-  });
-});
-
-function enterDevOptions(){
-  document.querySelectorAll(".navtabs button").forEach(b=>b.classList.remove("active"));
-  showPage("simulator");
-}
-function exitDevOptions(){
-  document.querySelector('.navtabs button[data-page="home"]').classList.add("active");
-  showPage("home");
-}
-
-function tickClock(){
-  document.getElementById("clockDisplay").textContent = new Date().toLocaleTimeString();
-}
-setInterval(tickClock, 1000); tickClock();
-
-let hits = Math.floor(Math.random()*400)+1200;
-document.getElementById("hitcounter").textContent = String(hits).padStart(6,"0");
-setInterval(()=>{ hits += Math.random()<0.3?1:0; document.getElementById("hitcounter").textContent = String(hits).padStart(6,"0"); }, 4000);
-
-document.getElementById("overviewLguName").textContent = SIMULATED_LGU;
-
-const realMapFrame = document.getElementById("realMapFrame");
-if(realMapFrame){
-  realMapFrame.src = `https://www.google.com/maps?q=${MAP_CENTER.lat},${MAP_CENTER.lng}&z=13&output=embed`;
-}
-
-renderAll();
-startClock();
+document.getElementById("siteSelect").innerHTML=sim.sites.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");document.getElementById("siteSelect").onchange=e=>{sim.currentSiteId=e.target.value;renderAll();};document.getElementById("speedSelect").onchange=e=>{sim.tickMs=+e.target.value;startClock();};
+["A","B"].forEach(letter=>document.getElementById(`tower${letter}-cause`).innerHTML=FAILURE_CAUSES.map(c=>`<option>${c}</option>`).join(""));
+document.getElementById("incidentFilters").innerHTML=FILTERS.map(f=>`<button class="gbtn" data-filter="${f}">${f}</button>`).join("");document.getElementById("incidentFilters").onclick=e=>{if(!e.target.dataset.filter)return;sim.incidentFilter=e.target.dataset.filter;renderIncidentTable();};
+document.querySelectorAll(".navtabs button").forEach(btn=>btn.onclick=()=>{document.querySelectorAll(".navtabs button").forEach(b=>b.classList.remove("active"));btn.classList.add("active");showPage(btn.dataset.page);});
+window.addEventListener("resize",()=>{clearTimeout(window.mapResizeTimer);window.mapResizeTimer=setTimeout(()=>refineNodeOverlapsDOM(document.getElementById("siteMap")),120);});
+setInterval(()=>document.getElementById("clockDisplay").textContent=new Date().toLocaleTimeString(),1000);let hits=Math.floor(Math.random()*400)+1200;document.getElementById("hitcounter").textContent=String(hits).padStart(6,"0");setInterval(()=>{hits+=Math.random()<.3?1:0;document.getElementById("hitcounter").textContent=String(hits).padStart(6,"0");},4000);
+document.getElementById("overviewLguName").textContent=SIMULATED_LGU;const siteMapBase=document.getElementById("siteMapBase");if(siteMapBase)siteMapBase.src=`https://www.google.com/maps?q=${MAP_CENTER.lat},${MAP_CENTER.lng}&z=14&output=embed`;
+renderAll();startClock();
 </script>
 </body>
 </html>
