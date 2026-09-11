@@ -288,6 +288,235 @@
   .devconsole button.ok{color:#88ff88;border-color:#88ff88;background:#2b2b2b;}
   .devconsole button.primary-action{background:#555555;color:#ffffff;border-color:#888888;}
   .devconsole select, .devconsole .sitesel{background:#333333;color:#ffffff;border:1px solid #555555;}
+/* ===== dismissible simulation notice ===== */
+.dismissible-notice {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+/* Hide the notice after the Close button is clicked */
+.dismissible-notice[hidden] {
+  display: none !important;
+}
+
+.notice-close-btn {
+  flex-shrink: 0;
+  padding: 5px 10px;
+  border: 1px solid #8a0000;
+  background: #ffffff;
+  color: #8a0000;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.notice-close-btn:hover {
+  background: #8a0000;
+  color: #ffffff;
+}
+
+.notice-close-btn:focus {
+  outline: 3px solid #ffbf00;
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .dismissible-notice {
+    flex-direction: column;
+  }
+
+  .notice-close-btn {
+    align-self: flex-end;
+  }
+}
+/* ==================================================
+   GUIDED FAILOVER DEMONSTRATION
+================================================== */
+
+.guided-demo {
+  margin: 18px 0;
+  background: #ffffff;
+  border: 2px solid #0a2a6b;
+}
+
+/* Header and Start button */
+.guided-demo-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  padding: 16px;
+  background: #0a2a6b;
+  color: #ffffff;
+}
+
+.guided-demo-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: #ffffff;
+}
+
+.guided-demo-header p {
+  margin: 5px 0 0;
+  max-width: 750px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.guided-start-btn {
+  min-height: 48px;
+  padding: 10px 20px;
+  border: 2px solid #ffffff;
+  background: #ffbf00;
+  color: #111111;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.guided-start-btn:hover {
+  background: #ffd45c;
+}
+
+.guided-start-btn:focus {
+  outline: 3px solid #ffffff;
+  outline-offset: 3px;
+}
+
+.guided-start-btn:disabled {
+  background: #d6d6d6;
+  color: #555555;
+  cursor: not-allowed;
+}
+
+/* Demonstration content */
+.guided-demo-body {
+  padding: 16px;
+}
+
+/* Six-step tracker */
+.guided-progress {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.guided-step {
+  min-height: 112px;
+  padding: 10px;
+  border: 2px solid #aeb6c2;
+  background: #f5f6f8;
+  color: #222222;
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.guided-step-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  margin-bottom: 8px;
+  border-radius: 50%;
+  background: #667085;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.guided-step strong {
+  display: block;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
+.guided-step span:last-child {
+  display: block;
+  margin-top: 5px;
+  color: #4b5563;
+  font-size: 11px;
+  line-height: 1.35;
+}
+
+/* Finished steps */
+.guided-step.completed {
+  border-color: #237a3b;
+  background: #edf8f0;
+}
+
+.guided-step.completed .guided-step-number {
+  background: #237a3b;
+}
+
+/* Current active step */
+.guided-step.active {
+  border-color: #0a2a6b;
+  background: #e8f1ff;
+  outline: 3px solid #7ab2ff;
+  outline-offset: 1px;
+}
+
+.guided-step.active .guided-step-number {
+  background: #0a2a6b;
+}
+
+/* Live presenter narration */
+.guided-narration {
+  padding: 13px 15px;
+  border-left: 6px solid #0a2a6b;
+  background: #eef4ff;
+  color: #172033;
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* Final result */
+.guided-result {
+  display: none;
+  margin-top: 12px;
+  padding: 13px 15px;
+  border: 2px solid #237a3b;
+  background: #edf8f0;
+  color: #183d22;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.guided-result.visible {
+  display: block;
+}
+
+/* Tablet layout */
+@media (max-width: 900px) {
+  .guided-progress {
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+  }
+}
+
+/* Phone layout */
+@media (max-width: 520px) {
+  .guided-demo-header {
+    align-items: stretch;
+  }
+
+  .guided-start-btn {
+    width: 100%;
+  }
+
+  .guided-progress {
+    grid-template-columns: 1fr;
+  }
+
+  .guided-step {
+    min-height: auto;
+  }
+}
 </style>
 </head>
 <body>
@@ -328,53 +557,264 @@
   <button data-page="report">DOWNLOADABLE REPORT</button>
   <button data-page="about">ABOUT / DISCLAIMER</button>
 </div>
-
 <!-- ============ HOME ============ -->
-<div class="page active" id="page-home">
-  <div class="disclaimer">
-    <b>NOTICE:</b> This is a non-official, student-built <b>SIMULATION</b> created for the DICT Philippine Startup Challenge (CellSentry PH). It is <b>not</b> an official government website, is <b>not</b> connected to any real modem, tower, or carrier, and shows no real outage data.
+<div
+  class="disclaimer dismissible-notice"
+  id="simulationNotice"
+>
+  <div>
+    <b>NOTICE:</b>
+    This is a non-official, student-built <b>SIMULATION</b> created for the
+    DICT Philippine Startup Challenge (CellSentry PH). It is <b>not</b> an
+    official government website, is <b>not</b> connected to any real modem,
+    tower, or carrier, and shows no real outage data.
   </div>
 
-  <div class="stats-row">
-    <div class="statbox"><div class="num" id="statTotalSites">6</div><div class="lbl">SITES MONITORED (SIMULATED)</div></div>
-    <div class="statbox"><div class="num" id="statHealthy">-</div><div class="lbl">PRIMARY HEALTHY</div></div>
-    <div class="statbox"><div class="num" id="statBackup">-</div><div class="lbl">RUNNING ON BACKUP</div></div>
-    <div class="statbox"><div class="num" id="statOffline">-</div><div class="lbl">OFFLINE</div></div>
-  </div>
-
-  <div class="panel">
-    <h3>SIMULATED BARANGAY NODE MAP &mdash; NORZAGARAY, BULACAN</h3>
-    <div class="inner">
-      <div class="hint">Node layout below is derived from the actual relative positions of these barangays (via Google Places data) so the arrangement roughly reflects real geography &mdash; it is still a schematic box diagram, not a precise geodetic plot. Box color reflects each node's current simulated connectivity state. Click a node to jump to its row on the LGU Site Overview tab.</div>
-      <div class="sitemap" id="siteMap">
-        <span class="sitemap-caption">NORZAGARAY, BULACAN (SCHEMATIC, POSITIONS FROM REAL BARANGAY DATA)</span>
-        <span class="sitemap-compass">N &uarr;</span>
-      </div>
-      <div class="map-legend" id="mapLegend"></div>
-      <div class="hint" style="margin-top:10px;">
-        Reference (real, live) map of the area &mdash; not part of the simulation, shown for geographic context only:
-      </div>
-      <div class="real-map-wrap">
-        <iframe id="realMapFrame" class="real-map-frame" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
-      </div>
-    </div>
-  </div>
-
-  <div class="panel">
-    <h3>PUBLIC ADVISORY BOARD (SIMULATED POSTS)</h3>
-    <div class="inner">
-      <table class="oldtable">
-        <tr><th style="width:120px;">DATE POSTED</th><th>ADVISORY</th></tr>
-        <tr><td>2026-09-10</td><td>[SIMULATED] CellSentry monitoring module now demonstrable at the Brgy. Tigbe Evacuation Center node, Norzagaray, Bulacan.</td></tr>
-        <tr><td>2026-09-03</td><td>[SIMULATED] Quarterly connectivity resilience test scheduled for all Norzagaray demo sites.</td></tr>
-        <tr><td>2026-08-21</td><td>[SIMULATED] Reminder: this portal is a concept demonstration and does not carry real emergency advisories.</td></tr>
-      </table>
-    </div>
-  </div>
-
-  <div class="hint">SMS field-responder alert module: roadmap item, not part of the current MVP.</div>
+  <button
+    class="notice-close-btn"
+    type="button"
+    onclick="dismissSimulationNotice()"
+    aria-label="Close simulation notice"
+    title="Close notice"
+  >
+    &times; Close
+  </button>
 </div>
 
+  <!-- ============ GUIDED FAILOVER DEMONSTRATION ============ -->
+  <section class="guided-demo" aria-labelledby="guidedDemoTitle">
+
+    <div class="guided-demo-header">
+      <div>
+        <h3 id="guidedDemoTitle">
+          GUIDED FAILOVER DEMONSTRATION
+        </h3>
+
+        <p>
+          Watch CellSentry detect a primary-link problem, switch to the backup
+          connection, maintain service, recover, and record the incident.
+        </p>
+      </div>
+
+      <button
+        id="guidedDemoButton"
+        class="guided-start-btn"
+        type="button"
+        onclick="startGuidedDemo()"
+      >
+        START GUIDED DEMO
+      </button>
+    </div>
+
+    <div class="guided-demo-body">
+
+      <div
+        class="guided-progress"
+        id="guidedProgress"
+        aria-label="Guided demonstration progress"
+      >
+
+        <!-- STEP 1 -->
+        <div
+          class="guided-step active"
+          data-guided-step="1"
+          aria-current="step"
+        >
+          <span class="guided-step-number">1</span>
+          <strong>NORMAL</strong>
+          <span>Both connections are working.</span>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="guided-step" data-guided-step="2">
+          <span class="guided-step-number">2</span>
+          <strong>DETECTING PROBLEM</strong>
+          <span>The primary connection repeatedly fails.</span>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="guided-step" data-guided-step="3">
+          <span class="guided-step-number">3</span>
+          <strong>SWITCHING CONNECTION</strong>
+          <span>CellSentry selects the backup connection.</span>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="guided-step" data-guided-step="4">
+          <span class="guided-step-number">4</span>
+          <strong>SERVICE MAINTAINED</strong>
+          <span>The site remains connected through backup.</span>
+        </div>
+
+        <!-- STEP 5 -->
+        <div class="guided-step" data-guided-step="5">
+          <span class="guided-step-number">5</span>
+          <strong>RECOVERING</strong>
+          <span>The primary connection becomes stable again.</span>
+        </div>
+
+        <!-- STEP 6 -->
+        <div class="guided-step" data-guided-step="6">
+          <span class="guided-step-number">6</span>
+          <strong>REPORT CREATED</strong>
+          <span>The simulated incident is recorded.</span>
+        </div>
+
+      </div>
+
+      <!-- Text that changes while the demonstration is running -->
+      <div
+        id="guidedNarration"
+        class="guided-narration"
+        role="status"
+        aria-live="polite"
+      >
+        Ready: both simulated connections are healthy.
+        Select Start Guided Demo when the presenter is ready.
+      </div>
+
+      <!-- Final result shown after the demonstration -->
+      <div
+        id="guidedResult"
+        class="guided-result"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+    </div>
+  </section>
+  <!-- ============ END GUIDED FAILOVER DEMONSTRATION ============ -->
+
+  <!-- ============ SUMMARY STATISTICS ============ -->
+  <div class="stats-row">
+
+    <div class="statbox">
+      <div class="num" id="statTotalSites">6</div>
+      <div class="lbl">SITES MONITORED (SIMULATED)</div>
+    </div>
+
+    <div class="statbox">
+      <div class="num" id="statHealthy">-</div>
+      <div class="lbl">PRIMARY HEALTHY</div>
+    </div>
+
+    <div class="statbox">
+      <div class="num" id="statBackup">-</div>
+      <div class="lbl">RUNNING ON BACKUP</div>
+    </div>
+
+    <div class="statbox">
+      <div class="num" id="statOffline">-</div>
+      <div class="lbl">OFFLINE</div>
+    </div>
+
+  </div>
+
+  <!-- ============ SIMULATED BARANGAY MAP ============ -->
+  <div class="panel">
+
+    <h3>
+      SIMULATED BARANGAY NODE MAP &mdash; NORZAGARAY, BULACAN
+    </h3>
+
+    <div class="inner">
+
+      <div class="hint">
+        Node layout below is derived from the actual relative positions of
+        these barangays (via Google Places data), so the arrangement roughly
+        reflects real geography &mdash; it is still a schematic box diagram,
+        not a precise geodetic plot. Box color reflects each node's current
+        simulated connectivity state. Click a node to jump to its row on the
+        LGU Site Overview tab.
+      </div>
+
+      <div class="sitemap" id="siteMap">
+
+        <span class="sitemap-caption">
+          NORZAGARAY, BULACAN
+          (SCHEMATIC, POSITIONS FROM REAL BARANGAY DATA)
+        </span>
+
+        <span class="sitemap-compass">
+          N &uarr;
+        </span>
+
+      </div>
+
+      <div
+        class="map-legend"
+        id="mapLegend"
+      ></div>
+
+      <div class="hint" style="margin-top:10px;">
+        Reference (real, live) map of the area &mdash; not part of the
+        simulation, shown for geographic context only:
+      </div>
+
+      <div class="real-map-wrap">
+        <iframe
+          id="realMapFrame"
+          class="real-map-frame"
+          loading="lazy"
+          referrerpolicy="no-referrer-when-downgrade"
+          title="Reference map of Norzagaray, Bulacan"
+        ></iframe>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============ PUBLIC ADVISORY BOARD ============ -->
+  <div class="panel">
+
+    <h3>
+      PUBLIC ADVISORY BOARD (SIMULATED POSTS)
+    </h3>
+
+    <div class="inner">
+
+      <table class="oldtable">
+
+        <tr>
+          <th style="width:120px;">DATE POSTED</th>
+          <th>AD</th>
+        </tr>
+
+        <tr>
+          <td>2026-09-10</td>
+          <td>
+            [SIMULATED] CellSentry monitoring module now demonstrable at the
+            Brgy. Tigbe Evacuation Center node, Norzagaray, Bulacan.
+          </td>
+        </tr>
+
+        <tr>
+          <td>2026-09-03</td>
+          <td>
+            [SIMULATED] Quarterly connectivity resilience test scheduled for
+            all Norzagaray demo sites.
+          </td>
+        </tr>
+
+        <tr>
+          <td>2026-08-21</td>
+          <td>
+            [SIMULATED] Reminder: this portal is a concept demonstration and
+            does not carry real emergency advisories.
+          </td>
+        </tr>
+
+      </table>
+
+    </div>
+  </div>
+
+  <div class="hint">
+    SMS field-responder alert module: roadmap item, not part of the current MVP.
+  </div>
+
+</div>
+<!-- ============ END HOME ============ -->
 <!-- ============ OVERVIEW ============ -->
 <div class="page" id="page-overview">
   <div class="panel">
@@ -874,7 +1314,191 @@ function runScriptedDemo(){
   }
   runNext();
 }
+/* ==================================================
+   HOMEPAGE GUIDED FAILOVER DEMONSTRATION
+================================================== */
 
+let guidedDemoRunning = false;
+
+/*
+  Highlights the current demonstration step.
+  Earlier steps are marked as completed.
+*/
+function updateGuidedStep(stepNumber, narrationText) {
+  const steps = document.querySelectorAll(".guided-step");
+  const narration = document.getElementById("guidedNarration");
+
+  steps.forEach((step) => {
+    const number = Number(step.dataset.guidedStep);
+
+    step.classList.remove("active", "completed");
+    step.removeAttribute("aria-current");
+
+    if (number < stepNumber) {
+      step.classList.add("completed");
+    }
+
+    if (number === stepNumber) {
+      step.classList.add("active");
+      step.setAttribute("aria-current", "step");
+    }
+  });
+
+  if (narration) {
+    narration.textContent = narrationText;
+  }
+}
+
+/*
+  Runs the homepage demonstration without changing the existing
+  Developer Options scripted-demo function.
+*/
+function startGuidedDemo() {
+  if (guidedDemoRunning || demoRunning) {
+    return;
+  }
+
+  guidedDemoRunning = true;
+
+  const button = document.getElementById("guidedDemoButton");
+  const result = document.getElementById("guidedResult");
+
+  if (button) {
+    button.disabled = true;
+    button.textContent = "DEMO RUNNING...";
+  }
+
+  if (result) {
+    result.classList.remove("visible");
+    result.innerHTML = "";
+  }
+
+  /*
+    Reset the selected simulated site so the demonstration
+    always begins with both connections healthy.
+  */
+  resetSite();
+
+  const site = currentSite();
+  const demonstrationStartedAt = Date.now();
+
+  pushLog(
+    site,
+    "GUIDED DEMO STARTED: both simulated connections are healthy."
+  );
+
+  updateGuidedStep(
+    1,
+    "NORMAL: Both simulated connections are healthy. The primary connection is currently active."
+  );
+
+  /*
+    Timing follows the simulator's currently selected speed.
+    Fast Forward finishes quickly, while Real Timing runs more slowly.
+  */
+  const stepDelay = Math.max(tickIntervalMs * 3, 1200);
+
+  /* STEP 2: Primary connection begins failing */
+  setTimeout(() => {
+    document.getElementById("towerA-congestion").value = 95;
+    onCongestionInput("A");
+
+    pushLog(
+      site,
+      "Guided demo: primary-link congestion increased to 95%."
+    );
+
+    updateGuidedStep(
+      2,
+      "DETECTING PROBLEM: The primary connection is repeatedly failing its simulated health checks."
+    );
+  }, stepDelay);
+
+  /* STEP 3: CellSentry confirms the problem */
+  setTimeout(() => {
+    pushLog(
+      site,
+      "Guided demo: sustained primary-link failure confirmed."
+    );
+
+    updateGuidedStep(
+      3,
+      "SWITCHING CONNECTION: CellSentry confirmed the primary-link problem and is selecting the backup connection."
+    );
+  }, stepDelay * 2);
+
+  /* STEP 4: Backup connection maintains service */
+  setTimeout(() => {
+    updateGuidedStep(
+      4,
+      "SERVICE MAINTAINED: The site remains connected through the simulated backup link."
+    );
+  }, stepDelay * 3);
+
+  /* STEP 5: Primary connection is restored */
+  setTimeout(() => {
+    document.getElementById("towerA-congestion").value = 0;
+    onCongestionInput("A");
+
+    pushLog(
+      site,
+      "Guided demo: primary link restored. Stability checks started before returning."
+    );
+
+    updateGuidedStep(
+      5,
+      "RECOVERING: The primary connection is healthy again, but CellSentry checks its stability before returning traffic."
+    );
+  }, stepDelay * 4);
+
+  /*
+    STEP 6:
+    Extra time is allowed for the recovery checks and recovery hold.
+  */
+  setTimeout(() => {
+    const demonstrationSeconds = Math.round(
+      (Date.now() - demonstrationStartedAt) / 1000
+    );
+
+    pushLog(
+      site,
+      "GUIDED DEMO COMPLETE: simulated incident recorded and report prepared."
+    );
+
+    generateReport();
+    renderAll();
+
+    updateGuidedStep(
+      6,
+      "REPORT CREATED: The simulated failover and recovery incident has been recorded successfully."
+    );
+
+    if (result) {
+      result.innerHTML = `
+        <b>SIMULATED DEMONSTRATION COMPLETE</b><br>
+        Primary-link problem detected: <b>YES</b><br>
+        Backup connection activated: <b>YES</b><br>
+        Service maintained through backup: <b>YES</b><br>
+        Primary connection recovered: <b>YES</b><br>
+        Incident report prepared: <b>YES</b><br>
+        Demonstration duration: <b>${demonstrationSeconds} seconds</b><br><br>
+        <small>
+          These are illustrative simulation results and are not measured
+          hardware or carrier performance.
+        </small>
+      `;
+
+      result.classList.add("visible");
+    }
+
+    if (button) {
+      button.disabled = false;
+      button.textContent = "RUN GUIDED DEMO AGAIN";
+    }
+
+    guidedDemoRunning = false;
+  }, stepDelay * 7);
+}
 /* ---- rendering ---- */
 function renderAll(){
   renderTowers();
@@ -1060,6 +1684,13 @@ document.getElementById("overviewLguName").textContent = SIMULATED_LGU;
 const realMapFrame = document.getElementById("realMapFrame");
 if(realMapFrame){
   realMapFrame.src = `https://www.google.com/maps?q=${MAP_CENTER.lat},${MAP_CENTER.lng}&z=13&output=embed`;
+}
+function dismissSimulationNotice() {
+  const notice = document.getElementById("simulationNotice");
+
+  if (notice) {
+    notice.hidden = true;
+  }
 }
 
 renderAll();
