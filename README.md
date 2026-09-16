@@ -1,3 +1,4 @@
+
 # CellSentry PH
 
 **When one network fails, public service stays online.**
@@ -7,6 +8,8 @@ CellSentry PH is a concept-stage connectivity-resilience system for disaster-cri
 This repository contains the interactive municipal monitoring and failover **simulation** prepared as a proof of concept for the DICT Philippine Startup Challenge.
 
 ## Live deployment
+
+<img width="1920" height="1080" alt="ss" src="https://github.com/user-attachments/assets/1922745c-2f65-47f7-b368-51b5ecee00f1" />
 
 **Open the published simulation:** [cellcentry-simulation.vercel.app](https://cellcentry-simulation.vercel.app/)
 
