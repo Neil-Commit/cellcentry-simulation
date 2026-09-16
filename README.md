@@ -1,5 +1,4 @@
-
-# CellSentry PH
+<img width="1920" height="1080" alt="logo" src="https://github.com/user-attachments/assets/97dfac3d-1512-4f5f-ae51-cb1ec80b210e" />
 
 **When one network fails, public service stays online.**
 
